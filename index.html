@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Teacher — Learn Go, one step at a time</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --bg-card: #ffffff;
+    --bg-secondary: #f4f2ee;
+    --bg-info: #eef4ff;
+    --bg-success: #edfbf3;
+    --bg-warning: #fff8ec;
+    --bg-danger: #fff0f0;
+    --text: #1a1a18;
+    --text-secondary: #5c5b57;
+    --text-tertiary: #9c9b96;
+    --text-info: #1a5fb4;
+    --text-success: #1a7a3c;
+    --text-warning: #7a4f00;
+    --text-danger: #8b1a1a;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: 'Georgia', 'Times New Roman', serif;
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --bg-card: #242420;
+      --bg-secondary: #2c2c28;
+      --bg-info: #0d1f3c;
+      --bg-success: #0d2a1a;
+      --bg-warning: #2a1f00;
+      --bg-danger: #2a0d0d;
+      --text: #f0ede6;
+      --text-secondary: #a8a49c;
+      --text-tertiary: #6a6760;
+      --text-info: #7ab3f0;
+      --text-success: #6ecf8e;
+      --text-warning: #f0c060;
+      --text-danger: #f08080;
+      --border: rgba(255,255,255,0.1);
+      --border-strong: rgba(255,255,255,0.18);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-ui); min-height: 100vh; }
+
+  /* Layout */
+  .app-shell { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+  /* Header */
+  .app-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+  .app-logo { font-family: var(--font); font-size: 18px; color: var(--text); letter-spacing: -0.3px; }
+  .app-logo span { color: var(--text-tertiary); font-weight: 400; font-size: 14px; margin-left: 8px; font-family: var(--font-ui); }
+  .header-path { font-size: 12px; color: var(--text-tertiary); background: var(--bg-secondary); padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--border); }
+
+  /* Progress */
+  .progress-section { display: flex; flex-direction: column; gap: 8px; }
+  .progress-row { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); cursor: pointer; transition: transform 0.12s, background 0.12s; flex-shrink: 0; border: none; padding: 0; }
+  .dot:hover { transform: scale(1.5); }
+  .dot.done { background: var(--text-success); }
+  .dot.active { background: var(--text-info); transform: scale(1.35); }
+  .dot.part-div { width: 1px; height: 14px; border-radius: 0; background: var(--border); cursor: default; margin: 0 4px; }
+  .dot.part-div:hover { transform: none; }
+  .dot.scenario { width: 7px; height: 7px; }
+  .progress-label { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); }
+
+  /* Badges */
+  .badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; font-family: var(--font-ui); }
+  .badge-part { background: var(--bg-secondary); color: var(--text-secondary); border: 0.5px solid var(--border); }
+  .badge-step { background: var(--bg-info); color: var(--text-info); }
+
+  /* Lesson title */
+  .lesson-title { font-family: var(--font); font-size: 22px; color: var(--text); line-height: 1.3; letter-spacing: -0.3px; }
+
+  /* Lesson card */
+  .lesson-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; font-size: 14px; color: var(--text-secondary); line-height: 1.75; font-family: var(--font-ui); }
+  .lesson-card strong { color: var(--text); font-weight: 500; }
+  .lesson-card em { font-style: italic; }
+  .lesson-card a { color: var(--text-info); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* Board */
+  .board-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  #board { display: block; border-radius: var(--radius); box-shadow: 0 2px 12px rgba(0,0,0,0.08); max-width: 100%; cursor: pointer; }
+  .board-hint { font-size: 12px; color: var(--text-tertiary); text-align: center; font-family: var(--font-ui); }
+  .status-bar { font-size: 12px; color: var(--text-tertiary); text-align: center; font-family: var(--font-ui); min-height: 16px; }
+
+  /* Legend */
+  .legend { display: none; gap: 12px; font-size: 12px; color: var(--text-secondary); flex-wrap: wrap; justify-content: center; font-family: var(--font-ui); }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Tip box */
+  .tip-box { background: var(--bg-warning); border: 0.5px solid rgba(122,79,0,0.15); border-radius: var(--radius); padding: 0.75rem 1rem; font-size: 13px; color: var(--text-warning); line-height: 1.65; display: none; font-family: var(--font-ui); }
+
+  /* Feedback */
+  .feedback-box { border-radius: var(--radius); padding: 0.85rem 1rem; font-size: 13px; line-height: 1.65; display: none; font-family: var(--font-ui); }
+  .feedback-box.success { background: var(--bg-success); color: var(--text-success); border: 0.5px solid rgba(26,122,60,0.15); }
+  .feedback-box.info { background: var(--bg-info); color: var(--text-info); border: 0.5px solid rgba(26,95,180,0.15); }
+  .feedback-box.warn { background: var(--bg-danger); color: var(--text-danger); border: 0.5px solid rgba(139,26,26,0.15); }
+
+  /* Controls */
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font-size: 13px; padding: 7px 14px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); cursor: pointer; font-family: var(--font-ui); transition: background 0.1s, opacity 0.1s; white-space: nowrap; }
+  button:hover { background: var(--bg-secondary); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.primary { background: var(--bg-info); color: var(--text-info); border-color: transparent; }
+  button.primary:hover { opacity: 0.85; }
+  button.ko-btn { background: var(--bg-warning); color: var(--text-warning); border-color: transparent; }
+  button.ko-btn:hover { opacity: 0.85; }
+
+  /* Chat */
+  .chat-area { display: flex; flex-direction: column; gap: 8px; }
+  .chat-row { display: flex; gap: 8px; }
+  .chat-row input { flex: 1; font-size: 13px; padding: 8px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); outline: none; font-family: var(--font-ui); }
+  .chat-row input:focus { border-color: var(--text-info); }
+  .chat-row input::placeholder { color: var(--text-tertiary); }
+  .chat-response { font-size: 13px; color: var(--text-secondary); line-height: 1.65; padding: 0.85rem 1rem; background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius); display: none; font-family: var(--font-ui); }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--text-info); border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 6px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* API key setup */
+  .api-setup { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; display: flex; flex-direction: column; gap: 12px; }
+  .api-setup h3 { font-size: 15px; font-weight: 500; color: var(--text); font-family: var(--font-ui); }
+  .api-setup p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; font-family: var(--font-ui); }
+  .api-setup input { width: 100%; font-size: 13px; padding: 8px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--bg); color: var(--text); outline: none; font-family: monospace; }
+  .api-note { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); }
+
+  /* Footer */
+  .app-footer { text-align: center; font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); padding-top: 1rem; border-top: 0.5px solid var(--border); }
+
+  @media (max-width: 480px) {
+    .app-shell { padding: 1rem 0.75rem 3rem; gap: 1rem; }
+    .lesson-title { font-size: 19px; }
+    #board { width: 300px !important; height: 300px !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="app-header">
+    <div class="app-logo">碁 Go Teacher <span>Path A</span></div>
+    <div class="header-path">Rules-first · 11 steps</div>
+  </header>
+
+  <div class="progress-section">
+    <div class="progress-row" id="progress"></div>
+    <div class="progress-label" id="progress-label">Click any dot to jump to that lesson</div>
+  </div>
+
+  <div class="badges">
+    <span class="badge badge-part" id="partbadge"></span>
+    <span class="badge badge-step" id="lbadge"></span>
+  </div>
+
+  <h1 class="lesson-title" id="ltitle"></h1>
+  <div class="lesson-card" id="ltext"></div>
+  <div class="tip-box" id="tipbox"></div>
+
+  <div class="board-wrap">
+    <canvas id="board" width="320" height="320"></canvas>
+    <div class="board-hint" id="lhint"></div>
+    <div class="status-bar" id="status"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="feedback-box" id="feedback"></div>
+
+  <div class="controls" id="controls">
+    <button onclick="resetBoard()">Reset</button>
+    <button id="btnPrev" onclick="prevLesson()" style="display:none">← Back</button>
+    <button id="btnNext" class="primary" onclick="nextLesson()" style="display:none">Next →</button>
+    <button id="btnKoStep" class="ko-btn" onclick="koStep()" style="display:none">Show next move →</button>
+    <button id="btnHint" onclick="showHint()" style="display:none">💡 Hint</button>
+    <button id="btnAnswer" onclick="showAnswer()" style="display:none">Show answer</button>
+  </div>
+
+  <div id="api-section" class="api-setup">
+    <h3>Enable the AI teacher</h3>
+    <p>The "Ask the teacher" box uses the Anthropic API. Paste your API key below — it's stored only in your browser's local storage and never sent anywhere except Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" />
+    <button onclick="saveApiKey()" class="primary">Save key</button>
+    <div class="api-note">Get a key at console.anthropic.com · Usage is billed to your account at standard rates</div>
+  </div>
+
+  <div class="chat-area" id="chat-area" style="display:none">
+    <div class="chat-row">
+      <input type="text" id="qinput" placeholder="Ask the teacher anything about Go…" onkeydown="if(event.key==='Enter')askTeacher()" />
+      <button onclick="askTeacher()">Ask ↗</button>
+    </div>
+    <div class="chat-response" id="qresp"></div>
+  </div>
+
+  <footer class="app-footer">
+    Go Teacher · Path A: Rules-first · <a href="https://online-go.com" style="color:var(--text-tertiary);">Play on OGS</a>
+  </footer>
+</div>
+
+<script>
+const N=9,PAD=22;
+let canvas,ctx,CELL;
+let cur=0;
+let blacks=[],whites=[],captureCount=0,cornerPlaced=false,centerPlaced=false,edgePlaced=false,hoverPt=null;
+let koIdx=0;
+let scenarioDone=false,scenarioIdx=0,currentScenario=null,answerShown=false;
+let scenarioBlacks=[],scenarioWhites=[];
+
+function pt(r,c){return r+','+c;}
+function fromPt(s){const[a,b]=s.split(',');return[+a,+b];}
+function has(arr,r,c){return arr.some(s=>s[0]===r&&s[1]===c);}
+function adj(r,c){return[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].filter(([a,b])=>a>=0&&a<N&&b>=0&&b<N);}
+function diagAdj(r,c){return[[r-1,c-1],[r-1,c+1],[r+1,c-1],[r+1,c+1]].filter(([a,b])=>a>=0&&a<N&&b>=0&&b<N);}
+function getGroup(arr,r,c){const vis=new Set([pt(r,c)]),q=[[r,c]];while(q.length){const[cr,cc]=q.shift();for(const[nr,nc]of adj(cr,cc))if(has(arr,nr,nc)&&!vis.has(pt(nr,nc))){vis.add(pt(nr,nc));q.push([nr,nc]);}}return[...vis].map(fromPt);}
+function getLibs(group){const s=new Set();for(const[r,c]of group)for(const[nr,nc]of adj(r,c))if(!has(blacks,nr,nc)&&!has(whites,nr,nc))s.add(pt(nr,nc));return[...s].map(fromPt);}
+function doCaptures(){for(const col of['white','black']){const arr=col==='white'?whites:blacks,gone=new Set();for(const[r,c]of arr)if(!gone.has(pt(r,c))){const g=getGroup(arr,r,c);if(getLibs(g).length===0)g.forEach(s=>gone.add(pt(s[0],s[1])));}if(gone.size){captureCount+=gone.size;if(col==='white')whites=whites.filter(s=>!gone.has(pt(s[0],s[1])));else blacks=blacks.filter(s=>!gone.has(pt(s[0],s[1])));}}}
+function largestGroup(arr){const vis=new Set();let mx=0;for(const[r,c]of arr)if(!vis.has(pt(r,c))){const g=getGroup(arr,r,c);g.forEach(s=>vis.add(pt(s[0],s[1])));if(g.length>mx)mx=g.length;}return mx;}
+function isEye(r,c,arr){if(has(arr,r,c)||has(whites,r,c))return false;return adj(r,c).every(([nr,nc])=>has(arr,nr,nc));}
+function isNearEye(r,c,arr){if(has(arr,r,c)||has(whites,r,c)||isEye(r,c,arr))return false;const ns=adj(r,c);return ns.filter(([nr,nc])=>has(arr,nr,nc)).length>=1&&ns.some(([nr,nc])=>!has(arr,nr,nc));}
+function countEyes(arr){const ep=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(isEye(r,c,arr))ep.push(pt(r,c));if(!ep.length)return 0;const vis=new Set();let g=0;for(const k of ep){if(vis.has(k))continue;g++;const[er,ec]=fromPt(k);const q=[[er,ec]];vis.add(k);while(q.length){const[cr,cc]=q.shift();for(const[nr,nc]of adj(cr,cc)){const nk=pt(nr,nc);if(!vis.has(nk)&&ep.includes(nk)){vis.add(nk);q.push([nr,nc]);}}}}return g;}
+function getTerritoryPts(arr){if(arr.length<4)return[];const vis=new Set(),res=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++){if(has(arr,r,c)||has(whites,r,c)||vis.has(pt(r,c)))continue;const region=[],q=[[r,c]],rs=new Set([pt(r,c)]);let edge=false;while(q.length){const[cr,cc]=q.shift();region.push([cr,cc]);if(cr===0||cr===N-1||cc===0||cc===N-1)edge=true;for(const[nr,nc]of adj(cr,cc))if(!has(arr,nr,nc)&&!has(whites,nr,nc)&&!rs.has(pt(nr,nc))){rs.add(pt(nr,nc));q.push([nr,nc]);}}rs.forEach(v=>vis.add(v));const bord=new Set();for(const[cr,cc]of region)for(const[nr,nc]of adj(cr,cc)){if(has(arr,nr,nc))bord.add('b');if(has(whites,nr,nc))bord.add('w');}if(!edge&&bord.size===1&&bord.has('b'))region.forEach(p=>res.push(p));}return res;}
+function countTerritory(arr){return getTerritoryPts(arr).length;}
+function snap(x,y){const c=Math.round((x-PAD)/CELL),r=Math.round((y-PAD)/CELL);if(c<0||c>=N||r<0||r>=N)return null;if(Math.abs(x-(PAD+c*CELL))>CELL*0.46||Math.abs(y-(PAD+r*CELL))>CELL*0.46)return null;return[r,c];}
+function isCorner(r,c){return(r===0||r===N-1)&&(c===0||c===N-1);}
+function isEdgeOnly(r,c){return!isCorner(r,c)&&(r===0||r===N-1||c===0||c===N-1);}
+function isCenter(r,c){return r>=2&&r<=6&&c>=2&&c<=6&&!isCorner(r,c)&&!isEdgeOnly(r,c);}
+const ZONES={corner:(r,c)=>(r<=2||r>=6)&&(c<=2||c>=6),edge:(r,c)=>!((r<=2||r>=6)&&(c<=2||c>=6))&&(r<=1||r>=7||c<=1||c>=7)};
+function cornerCount(){return blacks.filter(([r,c])=>ZONES.corner(r,c)).length;}
+function edgeCount(){return blacks.filter(([r,c])=>ZONES.edge(r,c)).length;}
+
+const SCENARIOS=[
+  {id:'ignore',title:'Scenario 1 of 6: Ignore or respond?',
+   setup:{blacks:[[1,1],[1,7]],whites:[[7,7]]},
+   hint:"White's stone is in the far corner, far from both your stones. Ask: can white capture anything or invade your territory on the very next move? If not, it's safe to ignore and keep building.",
+   answer:{coords:[7,1],explain:"Claiming the bottom-left corner is the biggest move — it stakes out a new area and mirrors the opening pattern. White's single stone isn't threatening anything yet."},
+   threatArrow:null,
+   question:"Early game on a 9×9. Black played top-left, white played bottom-right (★), black played top-right. It's black's turn. White's lone stone is in the far corner. Should you play near white, or claim the remaining open corner?",
+   zones:[
+     {label:'Perfect — claim open corner',color:'rgba(60,180,80,0.25)',test:(r,c,sb,sw)=>((r>=6&&c<=2)||(r>=6&&c>=6&&!(r===7&&c===7)))&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✓ Perfect — claiming an open corner is the biggest move. White's lone stone isn't threatening you at all. Play your own plan."},
+     {label:'Reasonable',color:'rgba(255,200,0,0.2)',test:(r,c,sb,sw)=>r>=4&&c<=4&&!((r>=6&&c<=2))&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"— Reasonable, but the open bottom-left corner is unclaimed and worth more."},
+     {label:'Too early to chase',color:'rgba(220,80,40,0.18)',test:(r,c,sb,sw)=>r>=5&&c>=5&&!(r===7&&c===7)&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✗ Playing right next to white's stone so early gives white the initiative. Stake out your own territory instead."},
+   ]},
+  {id:'block',title:'Scenario 2 of 6: Block the invasion',
+   setup:{blacks:[[0,0],[0,2],[2,0]],whites:[[1,1],[2,2],[3,3]]},
+   hint:"White's stones are pushing diagonally into the space between your three stones. The gap is in the 2×2 area around rows 1–2, cols 1–2. A move there closes the door before white gets deeper.",
+   answer:{coords:[1,2],explain:"Playing at row 2, col 2 or nearby blocks white's diagonal advance and keeps your corner intact. Think of it as closing a gate."},
+   threatArrow:{from:[2,2],to:[4,4]},
+   question:"Black has three stones forming a loose corner shape. White (★) has three stones pushing diagonally inward — if white advances further, your corner territory shrinks. Where do you block?",
+   zones:[
+     {label:'Perfect — closes the gap',color:'rgba(60,180,80,0.25)',test:(r,c,sb,sw)=>r>=1&&r<=2&&c>=1&&c<=2&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✓ Perfect — this plugs the gap in your corner. White can't advance further without running into your stones."},
+     {label:'Good — right area',color:'rgba(255,200,0,0.2)',test:(r,c,sb,sw)=>r<=3&&c<=3&&!(r>=1&&r<=2&&c>=1&&c<=2)&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"— You're in the right area but a tighter move inside the gap would be stronger."},
+     {label:'Too far away',color:'rgba(220,80,40,0.18)',test:(r,c,sb,sw)=>(r>=4||c>=4)&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✗ Too far away — white advances deeper next move. When territory is invaded, respond locally."},
+   ]},
+  {id:'connect',title:'Scenario 3 of 6: Connect your weak group',
+   setup:{blacks:[[1,6],[1,7],[4,7]],whites:[[2,7],[3,6],[3,8]]},
+   hint:"Your bottom stone is separated from your top two stones by white's line. Look for a move that bridges the gap — rows 3–4 on the right side of the board.",
+   answer:{coords:[3,7],explain:"Playing at row 4, col 8 or row 4, col 7 links your isolated stone or gives it room to run. A stone that can't connect or escape will be captured."},
+   threatArrow:null,
+   question:"Your top two stones are safe. Your lone stone at row 5, col 8 (★) is cut off by white. White can tighten the net next move. Where do you play to connect or give it an escape route?",
+   zones:[
+     {label:'Perfect',color:'rgba(60,180,80,0.25)',test:(r,c,sb,sw)=>((r===2&&c===8)||(r===3&&(c===7||c===8))||(r===4&&(c===6||c===7||c===8))||(r===5&&c===8))&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✓ Perfect — this connects or gives an escape route. Weak isolated stones need immediate attention."},
+     {label:'Good area',color:'rgba(255,200,0,0.2)',test:(r,c,sb,sw)=>r<=5&&c>=5&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"— Good direction, but not the most direct link. Try to find the move that joins both groups most cleanly."},
+     {label:'Ignores it',color:'rgba(220,80,40,0.18)',test:(r,c,sb,sw)=>(c<=4||r>=6)&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✗ This ignores your weak stone. White captures it next move."},
+   ]},
+  {id:'bigmove',title:'Scenario 4 of 6: Find the biggest move',
+   setup:{blacks:[[1,1],[7,1]],whites:[[1,7],[7,7]]},
+   hint:"All four corners are claimed. The edges and centre are wide open. Which edge is longest and most uncontested? Playing on an edge midpoint is often the next biggest move after corners.",
+   answer:{coords:[4,0],explain:"Playing on a side midpoint like row 5, col 1 extends your left-side presence and starts to claim edge territory. With all corners taken, the edges are the next most valuable area."},
+   threatArrow:null,
+   question:"Two moves each — black has the left corners, white has the right corners. All four corners claimed. It's black's turn. The edges and centre are completely open. What's the biggest move for black now?",
+   zones:[
+     {label:'Perfect — edge midpoint',color:'rgba(60,180,80,0.25)',test:(r,c,sb,sw)=>((r>=3&&r<=5&&(c<=1))||(r>=3&&r<=5&&(c>=7))||(c>=3&&c<=5&&(r<=1))||(c>=3&&c<=5&&(r>=7)))&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✓ Perfect — an edge midpoint is the biggest move when all corners are taken. It connects your corners and starts claiming edge territory."},
+     {label:'Decent',color:'rgba(255,200,0,0.2)',test:(r,c,sb,sw)=>r>=3&&r<=5&&c>=3&&c<=5&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"— The centre has potential but edges are more efficient after corners."},
+     {label:'Too local',color:'rgba(220,80,40,0.18)',test:(r,c,sb,sw)=>((r<=2&&c<=2)||(r<=2&&c>=6)||(r>=6&&c<=2)||(r>=6&&c>=6))&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✗ Adding to a corner group too early rarely gains much. The open edges are bigger moves right now."},
+   ]},
+  {id:'atari',title:'Scenario 5 of 6: Atari — save or sacrifice?',
+   // Black: [4,4],[4,5]. Liberties of group: adj of [4,4] = [3,4]W,[5,4]open,[4,3]W,[4,5]B; adj of [4,5] = [3,5]W,[5,5]W,[4,6]W,[4,4]B. Only liberty: [5,4]. Verified.
+   setup:{blacks:[[4,4],[4,5]],whites:[[3,4],[3,5],[4,3],[4,6],[5,5]]},
+   hint:"Count every empty point touching either of your two black stones — you should find exactly one open adjacent point. That is the one liberty. Extend from it or white captures both stones next move.",
+   answer:{coords:[5,4],explain:"Playing at row 6, col 5 (the single open liberty) extends the group and buys another move. From there you can try to run into open space. Any other move and white captures immediately."},
+   threatArrow:null,
+   question:"Your two black stones have exactly <strong>one liberty left</strong> — one open adjacent point. White captures them next move unless you act. The board colours show the zones: green = best, yellow = risky, red = you lose both stones. What do you do?",
+   zones:[
+     {label:'Extend — only escape',color:'rgba(60,180,80,0.5)',test:(r,c,sb,sw)=>(r===5&&c===4)&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✓ The only correct move — extending from the one remaining liberty buys another move and opens escape routes. Atari demands an immediate response at the open liberty."},
+     {label:'Fight nearby',color:'rgba(255,200,0,0.3)',test:(r,c,sb,sw)=>((r===2&&(c===4||c===5))||(r===5&&c===3)||(r===6&&(c===4||c===5)))&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"— Attacking white nearby might work in some positions, but white captures your group first. The one open liberty is the priority."},
+     {label:'Ignore it',color:'rgba(220,80,40,0.25)',test:(r,c,sb,sw)=>!((r===5&&c===4)||(r===2&&(c===4||c===5))||(r===5&&c===3)||(r===6&&(c===4||c===5)))&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✗ White captures both stones next move. Only sacrifice stones intentionally — never by accident."},
+   ]},
+  {id:'territory2',title:'Scenario 6 of 6: Protect or expand?',
+   setup:{blacks:[[0,2],[0,3],[0,4],[1,4],[1,2]],whites:[[3,4],[4,4],[4,5]]},
+   hint:"Look at your black stones along the top — is there a gap that white could enter? If not, that territory is safe without more stones. Now look at the open bottom half of the board.",
+   answer:{coords:[6,2],explain:"Your top group already secures the point at row 2, col 3 — it doesn't need more stones. Playing in the open lower half starts a new framework before white gets there."},
+   threatArrow:null,
+   question:"Black has 5 stones forming a partial enclosure at the top. White (★) has started building in the centre. Your top territory is nearly complete. Do you reinforce the top, or go claim space in the open lower half?",
+   zones:[
+     {label:'Expand — lower half',color:'rgba(60,180,80,0.25)',test:(r,c,sb,sw)=>r>=5&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✓ Your top group is nearly secure. Racing to claim the open lower half is the right instinct."},
+     {label:'Monitor white',color:'rgba(255,200,0,0.2)',test:(r,c,sb,sw)=>r>=3&&r<=4&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"— Reasonable to watch white's expansion, but playing further into open territory would be bigger."},
+     {label:'Over-defend top',color:'rgba(220,80,40,0.18)',test:(r,c,sb,sw)=>r<=2&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),msg:"✗ Your top position doesn't need more stones right now. Look for the biggest unclaimed area instead."},
+   ]},
+];
+
+const KO_STEPS=[
+  {blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5]],whites:[[3,4],[4,3],[4,5],[5,4],[2,4]],koAt:[4,4],label:"Step 1 of 5: This is a ko position. The circled point is where the ko stone sits. Black and white can each capture one stone endlessly here. Black has just captured — the white stone at centre is gone."},
+  {addB:[4,4],koAt:[4,4],label:"Step 2 of 5: Black captures ★. White would love to recapture immediately — but that would restore the exact previous board state. Ko forbids this."},
+  {addW:[7,4],koAt:[4,4],label:"Step 3 of 5: White must play a 'ko threat' elsewhere first — bottom centre. This forces black to respond or lose something valuable."},
+  {addB:[7,3],koAt:[4,4],label:"Step 4 of 5: Black responds to the threat. The board state has now changed — white is legally allowed to recapture the ko stone."},
+  {addW:[4,4],removeB:[4,4],koAt:[4,3],label:"Step 5 of 5: White recaptures. The ko swings back. Now black must play a ko threat before recapturing again. This back-and-forth is the ko fight — it can decide large areas of the board."},
+];
+
+function setupKo(){
+  koIdx=0;
+  const s=KO_STEPS[0];
+  blacks=s.blacks.map(x=>[...x]);
+  whites=s.whites.map(x=>[...x]);
+  document.getElementById('tipbox').textContent=s.label;
+  document.getElementById('tipbox').style.display='block';
+  document.getElementById('btnKoStep').style.display='inline-block';
+}
+
+window.koStep=function(){
+  if(koIdx>0){
+    // allow going back
+  }
+  koIdx++;
+  if(koIdx>=KO_STEPS.length){
+    document.getElementById('btnKoStep').style.display='none';
+    refreshUI();return;
+  }
+  const s=KO_STEPS[koIdx];
+  if(s.addB)blacks.push([...s.addB]);
+  if(s.removeB){const[r,c]=s.removeB;blacks=blacks.filter(x=>!(x[0]===r&&x[1]===c));}
+  if(s.addW)whites.push([...s.addW]);
+  if(s.removeW){const[r,c]=s.removeW;whites=whites.filter(x=>!(x[0]===r&&x[1]===c));}
+  document.getElementById('tipbox').textContent=s.label;
+  if(koIdx>=KO_STEPS.length-1)document.getElementById('btnKoStep').textContent='Done ✓';
+  draw();refreshUI();
+};
+
+function loadScenario(idx){
+  scenarioIdx=idx;scenarioDone=false;answerShown=false;
+  currentScenario=SCENARIOS[idx];
+  blacks=currentScenario.setup.blacks.map(s=>[...s]);
+  whites=currentScenario.setup.whites.map(s=>[...s]);
+  scenarioBlacks=blacks.map(s=>[...s]);
+  scenarioWhites=whites.map(s=>[...s]);
+  document.getElementById('ltext').innerHTML='<strong>'+currentScenario.title+'</strong><br><br>'+currentScenario.question;
+  document.getElementById('lhint').textContent='Click where you would play black';
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('btnNext').style.display='none';
+  document.getElementById('btnHint').style.display='inline-block';
+  document.getElementById('btnAnswer').style.display='inline-block';
+  buildDots();draw();
+}
+
+function gradeMove(r,c){
+  const sb=scenarioBlacks,sw=scenarioWhites;
+  let matched=false;
+  for(const z of currentScenario.zones){
+    if(z.test(r,c,sb,sw)){
+      const good=z.label.startsWith('Perfect')||z.label==='Extend — only escape'||z.label==='Expand — lower half';
+      const mid=!good&&!z.label.startsWith('Too')&&z.label!=='Ignore it'&&z.label!=='Over-defend top';
+      showFeedback(z.label+': '+z.msg,good?'success':mid?'info':'warn');
+      matched=true;break;
+    }
+  }
+  if(!matched)showFeedback("That spot isn't in a graded zone — try the Hint or Show Answer.","info");
+  finishScenario();
+}
+
+function showFeedback(msg,type){
+  const fb=document.getElementById('feedback');
+  fb.innerHTML=msg;fb.className='feedback-box '+type;fb.style.display='block';
+}
+
+function finishScenario(){
+  scenarioDone=true;
+  document.getElementById('btnHint').style.display='none';
+  document.getElementById('btnAnswer').style.display='none';
+  const btnNext=document.getElementById('btnNext');
+  btnNext.textContent=scenarioIdx<SCENARIOS.length-1?'Next scenario →':'Finish scenarios →';
+  btnNext.style.display='inline-block';
+  buildDots();
+  document.getElementById('status').textContent=LESSONS[cur].status();
+}
+
+window.showHint=function(){if(currentScenario)showFeedback('💡 '+currentScenario.hint,'info');};
+window.showAnswer=function(){
+  if(!currentScenario)return;
+  answerShown=true;
+  const[ar,ac]=currentScenario.answer.coords;
+  if(!blacks.some(s=>s[0]===ar&&s[1]===ac)&&!whites.some(s=>s[0]===ar&&s[1]===ac))blacks.push([ar,ac]);
+  showFeedback('Answer: '+currentScenario.answer.explain,'success');
+  finishScenario();draw();
+};
+
+const LESSONS=[
+  {part:'Part I: Mechanics',title:'The Board & Your First Stone',badge:'1 / 11',
+   text:'The Go board is a grid of lines. Stones are placed on the <strong>intersections</strong>, not in the squares. Click anywhere to place black stones. Try placing at least 3 — just get a feel for it.',
+   hint:'Click any intersection to place a stone',mode:'free',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>blacks.length>=3,status:()=>'Stones placed: '+blacks.length+' / 3',
+   ok:'Great — stones sit on intersections. That\'s the whole foundation.'},
+  {part:'Part I: Mechanics',title:'Liberties — A Stone\'s Breathing Room',badge:'2 / 11',
+   text:'Every stone needs space to breathe. The open points directly adjacent — up, down, left, right — are its <strong>liberties</strong>. Hover a stone to see its liberties glow blue. Place one stone in a corner, one on an edge, one in the middle. Notice how each has fewer or more liberties.',
+   hint:'Place stones in a corner, on an edge, and in the middle',mode:'free',showLibs:true,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>cornerPlaced&&edgePlaced&&centerPlaced,
+   status:()=>'Corner: '+(cornerPlaced?'✓':'–')+' · Edge: '+(edgePlaced?'✓':'–')+' · Centre: '+(centerPlaced?'✓':'–'),
+   ok:'Corner = 2 liberties, edge = 3, centre = 4. That\'s why the centre tends to be safer — more room to breathe.'},
+  {part:'Part I: Mechanics',title:'Capture — Liberties Only, Not Diagonals',badge:'3 / 11',
+   text:'Only the four <strong>orthogonal</strong> neighbours count as liberties — up, down, left, right. Diagonal points do <em>not</em> count. The orange dots show the white stone\'s actual liberties. Grey × marks are diagonals — irrelevant for capture. Click the orange dots to fill them with black stones.',
+   hint:'Click the orange dots to capture the white stone',mode:'capture_show',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>captureCount>0,status:()=>captureCount>0?'Captured! ✓':'Fill all orange liberty dots',
+   ok:'Only orthogonal neighbours matter for capture. Diagonals are always irrelevant.'},
+  {part:'Part I: Mechanics',title:'Capture — On Your Own',badge:'4 / 11',
+   text:'A white stone is somewhere on the board. No guidance this time — find its four liberties and fill them all with black stones. When the last liberty is filled, the stone is captured and removed.',
+   hint:'Find and fill all four liberties of the white stone',mode:'capture',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>captureCount>0,status:()=>captureCount>0?'Captured! ✓':'Find and fill all four liberties',
+   ok:'Groups work the same way — you must fill ALL liberties of an entire connected group to capture it.'},
+  {part:'Part I: Mechanics',title:'Groups — Stones Stick Together',badge:'5 / 11',
+   text:'Touching stones of the same colour form a <strong>group</strong> and share all their liberties. A group of 5 stones might have 12 liberties — much harder to capture than an isolated stone. Hover a group to see all its shared liberties glow blue. Try building a connected chain of 4 or more black stones.',
+   hint:'Place touching black stones to form a group of 4+',mode:'free',showLibs:true,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>largestGroup(blacks)>=4,status:()=>'Largest group: '+largestGroup(blacks)+' stones (need 4)',
+   ok:'Connected stones are much harder to capture. Isolated stones are easy targets. "Connect or die" is one of Go\'s core instincts.'},
+  {part:'Part I: Mechanics',title:'Two Eyes — Unconditional Life',badge:'6 / 11',
+   text:'A group is <strong>permanently alive</strong> if it has two separate enclosed empty spaces — called <strong>eyes</strong>. An eye is an empty point where every adjacent intersection is your stone (the board edge counts as a wall). <strong>Amber glow</strong> = real eye ✓. <strong>Red glow</strong> = partially surrounded but still leaks outside. Try to create a group with 2 separate amber points inside it.',
+   hint:'Build a group enclosing two separate empty spaces',mode:'free',showLibs:false,showEyes:true,showTerritory:false,showZones:false,
+   check:()=>countEyes(blacks)>=2,status:()=>'Eyes detected: '+countEyes(blacks)+' / 2',
+   ok:'Two eyes — that group can never die. This is the most important survival concept in Go.'},
+  {part:'Part I: Mechanics',title:'Territory — What You\'re Fighting For',badge:'7 / 11',
+   text:'At the end of the game you count <strong>territory</strong>: empty points completely surrounded by your stones — no gaps, no open edges reaching the outside. The green glow shows valid enclosed territory as you build. Fully enclose at least 6 empty intersections.',
+   hint:'Build a closed fence of black stones around empty points',mode:'free',showLibs:false,showEyes:false,showTerritory:true,showZones:false,
+   check:()=>countTerritory(blacks)>=6,status:()=>'Territory enclosed: '+countTerritory(blacks)+' / 6',
+   ok:'That\'s territory. Everything you\'ve learned — liberties, capture, groups, eyes — is in service of claiming this.'},
+  {part:'Part I: Mechanics',title:'Opening — Corners First',badge:'8 / 11',
+   text:'In the opening: <strong>corners first, edges second, centre last</strong>. A stone in the corner needs the fewest supporting stones to enclose territory — the board edge does some of the work for you. The board is shaded to show efficiency zones. Try placing 2 or more stones in corners and at least 1 on an edge.',
+   hint:'2+ corners, 1+ edge, then anywhere',mode:'opening',showLibs:false,showEyes:false,showTerritory:false,showZones:true,
+   check:()=>cornerCount()>=2&&edgeCount()>=1&&blacks.length>=4,
+   status:()=>'Corners: '+cornerCount()+'/2 · Edges: '+edgeCount()+'/1 · Total: '+blacks.length+'/4',
+   ok:'Corners give you the most territory for the fewest stones. Most 9×9 games are decided in the corners.'},
+  {part:'Part II: Strategy',title:'Responding to Your Opponent',badge:'9 / 11',
+   text:'When white plays, you always have a choice: <strong>respond locally</strong> (block or attack near white\'s stone) or <strong>play your own plan</strong> elsewhere. The key question: is white directly threatening to capture your stones or invade your territory? If yes — respond. If not — consider your biggest move instead. Work through all 6 board scenarios below. Click where you\'d play black, read the feedback, then press Next to continue.',
+   hint:'Click where you would play black',mode:'scenario',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>scenarioIdx>=SCENARIOS.length-1&&scenarioDone,
+   status:()=>'Scenario '+(scenarioIdx+1)+' of '+SCENARIOS.length+(scenarioDone?' — press Next to continue':'— click to respond'),
+   ok:'Good instincts are what separates a thinking player from a mechanical one. These judgements improve with every game you play.'},
+  {part:'Part III: Ko',title:'Ko — The Looping Rule',badge:'10 / 11',
+   text:'Ko arises when two players could endlessly recapture each other\'s stone, creating an infinite loop. The rule: <strong>you cannot make a move that recreates the exact previous board position</strong>. Instead you must play a "ko threat" elsewhere first, forcing your opponent to respond before you recapture. Step through the animation using the button below.',
+   hint:'Press "Show next move" to step through the ko fight',mode:'ko',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>koIdx>=KO_STEPS.length-1,
+   status:()=>koIdx===0?'Press the button below to begin':koIdx<KO_STEPS.length-1?'Step '+koIdx+' of '+(KO_STEPS.length-1):'Complete ✓',
+   ok:'Ko is one of Go\'s most fascinating complications. For now: if you can\'t recapture immediately, play your biggest ko threat elsewhere first.'},
+  {part:'Complete!',title:'You\'ve finished Path A',badge:'11 / 11',
+   text:'You now know everything you need to play a real game of Go. Here\'s what you\'ve covered:<br><br><strong>Mechanics:</strong> placing stones, liberties, capture, groups, two eyes, territory, the Ko rule.<br><strong>Strategy:</strong> corners-first opening, when to respond vs. when to play your own plan.<br><br><strong>Your next step: play a real game.</strong><br><br><a href="https://online-go.com" target="_blank">OGS (online-go.com)</a> is free. Go there, choose 9×9, and play against the computer — select "Weak bot" or the lowest difficulty. Lose a few games. Each loss teaches more than any lesson.<br><br><strong>When you\'re ready for more:</strong> Path B (coming soon) teaches the same ideas from the opposite direction — starting with board intuition rather than rules. Tactics (ladders, nets, snapback) and Life & Death puzzles come after that.',
+   hint:'',mode:'done',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>true,status:()=>'',ok:''},
+];
+
+function shouldShowNext(){
+  const L=LESSONS[cur];
+  if(L.mode==='scenario')return scenarioDone;
+  if(L.mode==='ko')return koIdx>=KO_STEPS.length-1;
+  if(L.mode==='done')return true;
+  return L.check();
+}
+
+function refreshUI(){
+  const L=LESSONS[cur];
+  document.getElementById('partbadge').textContent=L.part;
+  document.getElementById('lbadge').textContent='Step '+L.badge;
+  document.getElementById('ltitle').textContent=L.title;
+  const btnNext=document.getElementById('btnNext');
+  if(shouldShowNext()){
+    btnNext.style.display='inline-block';
+    if(L.mode!=='scenario')btnNext.textContent=L.mode==='done'?'Restart Path A':'Next →';
+  } else {
+    btnNext.style.display='none';
+  }
+  document.getElementById('btnPrev').style.display=cur>0?'inline-block':'none';
+  document.getElementById('btnKoStep').style.display=(L.mode==='ko'&&koIdx<KO_STEPS.length-1)?'inline-block':'none';
+  document.getElementById('btnHint').style.display=(L.mode==='scenario'&&!scenarioDone)?'inline-block':'none';
+  document.getElementById('btnAnswer').style.display=(L.mode==='scenario'&&!scenarioDone)?'inline-block':'none';
+  document.getElementById('status').textContent=L.status();
+  const fb=document.getElementById('feedback');
+  if(L.check()&&L.ok&&L.mode!=='scenario'&&fb.style.display==='none'){
+    fb.textContent=L.ok;fb.className='feedback-box success';fb.style.display='block';
+  }
+  const leg=document.getElementById('legend');
+  if(L.showEyes){leg.style.display='flex';leg.innerHTML='<span><i style="background:rgba(255,180,0,0.8)"></i>Real eye ✓</span><span><i style="background:rgba(220,60,60,0.7)"></i>Leaks outside — not an eye yet</span>';}
+  else if(L.showTerritory){leg.style.display='flex';leg.innerHTML='<span><i style="background:rgba(60,180,80,0.7)"></i>Enclosed territory ✓</span>';}
+  else if(L.mode==='capture_show'){leg.style.display='flex';leg.innerHTML='<span><i style="background:rgba(255,140,0,0.8)"></i>Liberty — fill this</span><span><i style="background:rgba(150,150,150,0.5)"></i>Diagonal — does not count</span>';}
+  else if(L.showZones){leg.style.display='flex';leg.innerHTML='<span><i style="background:rgba(60,160,60,0.7)"></i>Corner (best)</span><span><i style="background:rgba(80,120,220,0.5)"></i>Edge (good)</span><span><i style="background:rgba(200,60,60,0.35)"></i>Centre (later)</span>';}
+  else{leg.style.display='none';}
+  // Save progress
+  try{localStorage.setItem('go-teacher-progress',cur);}catch(e){}
+}
+
+function drawArrow(r1,c1,r2,c2,color){
+  const x1=PAD+c1*CELL,y1=PAD+r1*CELL,x2=PAD+c2*CELL,y2=PAD+r2*CELL;
+  const ang=Math.atan2(y2-y1,x2-x1),hl=10;
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-hl*Math.cos(ang-0.4),y2-hl*Math.sin(ang-0.4));
+  ctx.lineTo(x2-hl*Math.cos(ang+0.4),y2-hl*Math.sin(ang+0.4));
+  ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=0.8;
+}
+
+function draw(){
+  const L=LESSONS[cur];
+  const W=canvas.width;
+  ctx.clearRect(0,0,W,W);
+
+  if(L.mode==='done'){
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-secondary').trim()||'#f4f2ee';
+    ctx.fillRect(0,0,W,W);
+    ctx.fillStyle='rgba(0,0,0,0.25)';
+    ctx.font='500 16px Georgia, serif';
+    ctx.textAlign='center';
+    ctx.fillText('Path A complete',W/2,W/2-20);
+    ctx.font='13px sans-serif';
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.fillText('online-go.com · 9×9 · play against a weak bot',W/2,W/2+10);
+    ctx.textAlign='left';
+    return;
+  }
+
+  // Board background
+  ctx.fillStyle='#DCB97A';ctx.fillRect(0,0,W,W);
+
+  // Zone shading (opening lesson)
+  if(L.showZones){
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+      ctx.fillStyle=ZONES.corner(r,c)?'rgba(60,160,60,0.2)':ZONES.edge(r,c)?'rgba(80,120,220,0.12)':'rgba(200,60,60,0.08)';
+      ctx.fillRect(PAD+c*CELL-CELL/2,PAD+r*CELL-CELL/2,CELL,CELL);
+    }
+  }
+
+  // Grid lines
+  ctx.strokeStyle='#8B6914';ctx.lineWidth=0.8;
+  for(let i=0;i<N;i++){
+    ctx.beginPath();ctx.moveTo(PAD+i*CELL,PAD);ctx.lineTo(PAD+i*CELL,PAD+(N-1)*CELL);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD,PAD+i*CELL);ctx.lineTo(PAD+(N-1)*CELL,PAD+i*CELL);ctx.stroke();
+  }
+  // Star points
+  ctx.fillStyle='#8B6914';
+  for(const[r,c]of[[2,2],[2,6],[6,2],[6,6],[4,4]]){ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,3,0,Math.PI*2);ctx.fill();}
+
+  // Capture_show overlays
+  if(L.mode==='capture_show'&&whites.length>0){
+    const[wr,wc]=whites[0];
+    for(const[dr,dc]of diagAdj(wr,wc)){
+      ctx.fillStyle='rgba(150,150,150,0.28)';ctx.beginPath();ctx.arc(PAD+dc*CELL,PAD+dr*CELL,CELL*0.3,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(120,120,120,0.4)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(PAD+dc*CELL-5,PAD+dr*CELL-5);ctx.lineTo(PAD+dc*CELL+5,PAD+dr*CELL+5);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(PAD+dc*CELL+5,PAD+dr*CELL-5);ctx.lineTo(PAD+dc*CELL-5,PAD+dr*CELL+5);ctx.stroke();
+      ctx.lineWidth=0.8;
+    }
+    for(const[lr,lc]of adj(wr,wc).filter(([nr,nc])=>!has(blacks,nr,nc))){
+      ctx.fillStyle='rgba(255,140,0,0.5)';ctx.beginPath();ctx.arc(PAD+lc*CELL,PAD+lr*CELL,CELL*0.3,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(200,100,0,0.8)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(PAD+lc*CELL,PAD+lr*CELL,CELL*0.3,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+  }
+
+  // Eye overlays
+  if(L.showEyes){
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+      if(isEye(r,c,blacks)){
+        ctx.fillStyle='rgba(255,180,0,0.52)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.32,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(200,130,0,0.8)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.32,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+      } else if(isNearEye(r,c,blacks)){
+        ctx.fillStyle='rgba(220,60,60,0.32)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(180,40,40,0.6)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+      }
+    }
+  }
+
+  // Territory overlay
+  if(L.showTerritory){
+    for(const[r,c]of getTerritoryPts(blacks)){
+      ctx.fillStyle='rgba(60,180,80,0.42)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(30,140,50,0.7)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+  }
+
+  // Scenario overlays
+  if(L.mode==='scenario'&&currentScenario){
+    for(const z of currentScenario.zones){
+      for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+        if(z.test(r,c,scenarioBlacks,scenarioWhites)){
+          ctx.fillStyle=z.color;ctx.fillRect(PAD+c*CELL-CELL/2+1,PAD+r*CELL-CELL/2+1,CELL-2,CELL-2);
+        }
+      }
+    }
+    if(currentScenario.threatArrow){
+      const{from,to}=currentScenario.threatArrow;drawArrow(from[0],from[1],to[0],to[1],'rgba(200,50,50,0.65)');
+    }
+    if(whites.length>0){
+      const[wr,wc]=whites[whites.length-1];
+      ctx.fillStyle='rgba(60,60,200,0.7)';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('★',PAD+wc*CELL,PAD+wr*CELL-CELL*0.56);ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    }
+    if(answerShown&&currentScenario.answer){
+      const[ar,ac]=currentScenario.answer.coords;
+      ctx.strokeStyle='rgba(255,215,0,0.95)';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(PAD+ac*CELL,PAD+ar*CELL,CELL*0.48,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+  }
+
+  // Ko circle
+  if(L.mode==='ko'&&koIdx>0){
+    const step=KO_STEPS[Math.min(koIdx,KO_STEPS.length-1)];
+    if(step.koAt){
+      const[kr,kc]=step.koAt;
+      ctx.strokeStyle='rgba(220,60,60,0.85)';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.arc(PAD+kc*CELL,PAD+kr*CELL,CELL*0.52,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+  }
+
+  // Lib highlights on hover
+  let libSet=new Set(),groupSet=new Set();
+  if(L.showLibs&&hoverPt){
+    const[hr,hc]=hoverPt;
+    if(has(blacks,hr,hc)){
+      const g=getGroup(blacks,hr,hc);
+      g.forEach(s=>groupSet.add(pt(s[0],s[1])));
+      getLibs(g).forEach(s=>libSet.add(pt(s[0],s[1])));
+    }
+  }
+
+  // Stones
+  for(const[r,c]of blacks){
+    ctx.fillStyle='#111';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    if(groupSet.has(pt(r,c))){ctx.strokeStyle='#4a8ed4';ctx.lineWidth=2;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;}
+  }
+  for(const[r,c]of whites){
+    ctx.fillStyle='#f2f0ec';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.stroke();
+  }
+  for(const k of libSet){const[r,c]=fromPt(k);ctx.fillStyle='rgba(74,142,212,0.55)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.2,0,Math.PI*2);ctx.fill();}
+
+  // Hover ghost
+  if(hoverPt&&L.mode!=='ko'&&L.mode!=='done'){
+    const[hr,hc]=hoverPt;
+    if(!has(blacks,hr,hc)&&!has(whites,hr,hc)){
+      ctx.fillStyle='rgba(0,0,0,0.2)';ctx.beginPath();ctx.arc(PAD+hc*CELL,PAD+hr*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  // Turn indicator for game modes
+  if(L.mode==='ko'){
+    ctx.fillStyle='rgba(139,105,20,0.7)';ctx.fillRect(PAD,W-PAD+4,160,14);
+    ctx.fillStyle='#fff';ctx.font='11px sans-serif';
+    ctx.fillText(koIdx===0?'Press button below to begin':'Step '+koIdx+' of '+(KO_STEPS.length-1),PAD+4,W-PAD+14);
+  }
+}
+
+function onClick(e){
+  const L=LESSONS[cur];
+  if(L.mode==='ko'||L.mode==='done')return;
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width;
+  const scaleY=canvas.height/rect.height;
+  const p=snap((e.clientX-rect.left)*scaleX,(e.clientY-rect.top)*scaleY);
+  if(!p)return;
+  const[r,c]=p;
+  if(has(blacks,r,c)||has(whites,r,c))return;
+  if(L.mode==='scenario'){
+    if(scenarioDone)return;
+    scenarioBlacks=blacks.map(s=>[...s]);
+    scenarioWhites=whites.map(s=>[...s]);
+    blacks.push([r,c]);
+    gradeMove(r,c);
+    draw();return;
+  }
+  blacks.push([r,c]);
+  if(L.mode==='capture'||L.mode==='capture_show')doCaptures();
+  if(isCorner(r,c))cornerPlaced=true;
+  if(isEdgeOnly(r,c))edgePlaced=true;
+  if(isCenter(r,c))centerPlaced=true;
+  draw();refreshUI();
+}
+
+function onMove(e){
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width;
+  const scaleY=canvas.height/rect.height;
+  hoverPt=snap((e.clientX-rect.left)*scaleX,(e.clientY-rect.top)*scaleY);
+  draw();
+}
+
+function onTouch(e){
+  e.preventDefault();
+  const t=e.changedTouches[0];
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width;
+  const scaleY=canvas.height/rect.height;
+  const p=snap((t.clientX-rect.left)*scaleX,(t.clientY-rect.top)*scaleY);
+  if(!p)return;
+  hoverPt=null;
+  const fakeEvt={clientX:t.clientX,clientY:t.clientY};
+  onClick(fakeEvt);
+}
+
+function applyLesson(){
+  const L=LESSONS[cur];
+  if(L.mode!=='scenario'){
+    document.getElementById('ltext').innerHTML=L.text;
+  }
+  document.getElementById('lhint').textContent=L.hint;
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('qresp').style.display='none';
+  document.getElementById('tipbox').style.display='none';
+  document.getElementById('btnKoStep').style.display='none';
+  document.getElementById('btnKoStep').textContent='Show next move →';
+  blacks=[];whites=[];captureCount=0;cornerPlaced=false;centerPlaced=false;edgePlaced=false;hoverPt=null;koIdx=0;scenarioDone=false;currentScenario=null;scenarioIdx=0;answerShown=false;scenarioBlacks=[];scenarioWhites=[];
+  if(L.mode==='capture'||L.mode==='capture_show'){
+    const pos=[[2,4],[3,6],[4,2],[5,5],[6,3]];const[wr,wc]=pos[cur%pos.length];whites=[[wr,wc]];
+  }
+  if(L.mode==='ko')setupKo();
+  if(L.mode==='scenario')loadScenario(0);
+  buildDots();refreshUI();draw();
+  // Scroll to top of board
+  document.getElementById('board').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function buildDots(){
+  const p=document.getElementById('progress');p.innerHTML='';
+  let lastPart='';
+  LESSONS.forEach((L,i)=>{
+    if(L.part!==lastPart&&lastPart!==''){
+      const d=document.createElement('button');d.className='dot part-div';d.disabled=true;p.appendChild(d);
+    }
+    lastPart=L.part;
+    const d=document.createElement('button');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.title=L.title;
+    d.setAttribute('aria-label','Jump to: '+L.title);
+    d.addEventListener('click',()=>{cur=i;applyLesson();});
+    p.appendChild(d);
+    if(i===cur&&L.mode==='scenario'){
+      SCENARIOS.forEach((_,si)=>{
+        const sd=document.createElement('button');
+        sd.className='dot scenario'+(si===scenarioIdx?' active':si<scenarioIdx?' done':'');
+        sd.title='Scenario '+(si+1)+': '+SCENARIOS[si].title;
+        sd.setAttribute('aria-label','Jump to scenario '+(si+1));
+        sd.addEventListener('click',()=>{loadScenario(si);draw();document.getElementById('status').textContent=LESSONS[cur].status();});
+        p.appendChild(sd);
+      });
+    }
+  });
+  document.getElementById('progress-label').textContent=
+    cur<LESSONS.length-1?'Step '+(cur+1)+' of '+LESSONS.length+' · click any dot to jump':'All steps complete · click any dot to revisit';
+}
+
+window.resetBoard=function(){
+  const L=LESSONS[cur];
+  blacks=[];captureCount=0;cornerPlaced=false;centerPlaced=false;edgePlaced=false;hoverPt=null;koIdx=0;scenarioDone=false;answerShown=false;scenarioBlacks=[];scenarioWhites=[];
+  if(L.mode==='capture'||L.mode==='capture_show'){const pos=[[2,4],[3,6],[4,2],[5,5],[6,3]];whites=[[...pos[cur%pos.length]]];}
+  else if(L.mode==='ko')setupKo();
+  else if(L.mode==='scenario'){whites=[];loadScenario(scenarioIdx);}
+  else whites=[];
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('tipbox').style.display='none';
+  refreshUI();draw();
+};
+
+window.nextLesson=function(){
+  const L=LESSONS[cur];
+  if(L.mode==='done'){cur=0;applyLesson();return;}
+  if(L.mode==='scenario'&&scenarioDone&&scenarioIdx<SCENARIOS.length-1){
+    loadScenario(scenarioIdx+1);draw();
+    document.getElementById('status').textContent=LESSONS[cur].status();
+    buildDots();return;
+  }
+  if(cur<LESSONS.length-1){cur++;applyLesson();}
+};
+
+window.prevLesson=function(){if(cur>0){cur--;applyLesson();}};
+
+// API key management
+function saveApiKey(){
+  const key=document.getElementById('apiKeyInput').value.trim();
+  if(!key.startsWith('sk-ant-')){alert('That doesn\'t look like an Anthropic API key — it should start with sk-ant-');return;}
+  try{localStorage.setItem('go-teacher-api-key',key);}catch(e){}
+  document.getElementById('api-section').style.display='none';
+  document.getElementById('chat-area').style.display='flex';
+  alert('Key saved! The Ask the teacher feature is now active.');
+}
+
+window.askTeacher=async function(){
+  const inp=document.getElementById('qinput'),resp=document.getElementById('qresp');
+  const q=inp.value.trim();if(!q)return;
+  let apiKey='';
+  try{apiKey=localStorage.getItem('go-teacher-api-key')||'';}catch(e){}
+  if(!apiKey){resp.textContent='Please add your Anthropic API key above.';resp.style.display='block';return;}
+  inp.value='';
+  resp.innerHTML='<span class="spinner"></span>Thinking…';resp.style.display='block';
+  const L=LESSONS[cur];
+  const sc=L.mode==='scenario'&&currentScenario?' Current scenario: "'+currentScenario.title+'".':"";
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-iab':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'You are a patient, warm Go teacher. The student is on step '+(cur+1)+' of 11: "'+L.title+'".'+sc+' Keep answers to 2-4 sentences, concrete and encouraging. No jargon without explanation. Never condescending.',
+        messages:[{role:'user',content:q}]})
+    });
+    if(!r.ok){const err=await r.text();resp.textContent='API error ('+r.status+'). Check your key is valid and has credit.';return;}
+    const d=await r.json();
+    resp.textContent=d.content?.map(b=>b.text||'').join('')||'No response.';
+  }catch(e){resp.textContent='Could not reach Anthropic. Check your internet connection.';}
+};
+
+// Init
+canvas=document.getElementById('board');
+ctx=canvas.getContext('2d');
+CELL=(320-PAD*2)/(N-1);
+canvas.addEventListener('click',onClick);
+canvas.addEventListener('mousemove',onMove);
+canvas.addEventListener('mouseleave',()=>{hoverPt=null;draw();});
+canvas.addEventListener('touchstart',onTouch,{passive:false});
+
+// Check for saved API key
+try{
+  const savedKey=localStorage.getItem('go-teacher-api-key');
+  if(savedKey&&savedKey.startsWith('sk-ant-')){
+    document.getElementById('api-section').style.display='none';
+    document.getElementById('chat-area').style.display='flex';
+  }
+  // Restore progress
+  const savedCur=parseInt(localStorage.getItem('go-teacher-progress')||'0');
+  if(savedCur>0&&savedCur<LESSONS.length)cur=savedCur;
+}catch(e){}
+
+applyLesson();
+</script>
+</body>
+</html>
