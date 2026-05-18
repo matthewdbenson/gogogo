@@ -409,7 +409,7 @@ const KO_STEPS=[
     blacks:[[3,4],[3,5],[4,3],[4,6],[5,4],[5,5],[7,3]],
     whites:[[7,4],[4,4]],
     koAt:[4,4],
-    label:"Step 5 of 5: White recaptures (★) — black's stone is removed and white's stone takes its place. The position has swung back to mirror step 1, but with the ko threat exchange having happened. Now black must find another ko threat before recapturing again. This back-and-forth is the ko fight."
+    label:"Step 5 of 5: White recaptures (★) — black's stone is removed, and white plays on the now-empty point. The position has swung back to mirror step 1, but with the ko threat exchange having happened. Now black must find another ko threat before recapturing again. This back-and-forth is the ko fight."
   },
 ];
 
@@ -509,7 +509,7 @@ const LESSONS=[
    check:()=>blacks.length>=3,status:()=>'Stones placed: '+blacks.length+' / 3',
    ok:'Great — stones sit on intersections. That\'s the whole foundation.'},
   {part:'Part I: Mechanics',title:'Liberties — A Stone\'s Breathing Room',badge:'2 / 11',
-   text:'Every stone needs space to breathe. The open points directly adjacent — up, down, left, right — are its <strong>liberties</strong>. Hover a stone to see its liberties glow blue. Place one stone in a corner, one on an edge, one in the middle. Notice how each has fewer or more liberties.',
+   text:'Every stone needs space to breathe. The open points directly adjacent — up, down, left, right — are its <strong>liberties</strong>. Note: adjacent points occupied by <em>your own</em> stones also remove liberties — your own colour blocks you just as much as the opponent\'s does. Hover a stone to see its liberties glow blue. Place one stone in a corner, one on an edge, one in the middle. Notice how each has fewer or more liberties.',
    hint:'Place stones in a corner, on an edge, and in the middle',mode:'free',showLibs:true,showEyes:false,showTerritory:false,showZones:false,
    check:()=>cornerPlaced&&edgePlaced&&centerPlaced,
    status:()=>'Corner: '+(cornerPlaced?'✓':'–')+' · Edge: '+(edgePlaced?'✓':'–')+' · Centre: '+(centerPlaced?'✓':'–'),
