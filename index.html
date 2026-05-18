@@ -381,26 +381,26 @@ const SCENARIOS=[
 ];
 
 const KO_STEPS=[
-  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5]],
-    whites:[[3,4],[4,3],[4,4],[4,5],[5,4],[2,4]],
+  { blacks:[[3,4],[4,3],[5,4],[3,5],[5,5]],
+    whites:[[4,4],[4,6],[3,6],[5,6]],
     koAt:null,
-    label:"Step 1 of 5: A ko position. The white stone at the centre ★ has only one liberty — black can capture it. But if black captures, white could immediately recapture, restoring this exact position. That infinite loop is what Ko prevents. Press 'Show next move →' to see black capture." },
-  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[4,4]],
-    whites:[[3,4],[4,3],[4,5],[5,4],[2,4]],
-    koAt:[4,4],
-    label:"Step 2 of 5: Black captures ★ — the white stone is removed. Now the centre point belongs to black. White would love to recapture immediately, restoring the previous position. But Ko forbids it — you cannot recreate the exact previous board state. White must play elsewhere first." },
-  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[4,4]],
-    whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[7,4]],
-    koAt:[4,4],
-    label:"Step 3 of 5: White plays a 'ko threat' at the bottom — a move that threatens something valuable elsewhere. Black must respond, or lose more than just the ko stone. This is how the Ko rule creates a whole sub-game of threats and responses." },
-  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[4,4],[7,3]],
-    whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[7,4]],
-    koAt:[4,4],
-    label:"Step 4 of 5: Black responds to the threat. The board is now different from when black captured — so white is legally allowed to recapture the ko stone. Watch what happens next." },
-  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[7,3]],
-    whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[7,4],[4,4]],
-    koAt:[4,4],
-    label:"Step 5 of 5: White recaptures ★ — the black stone is removed. The ko has swung back. Now black must find a ko threat before recapturing again. This back-and-forth — capture, threat, respond, recapture — is the ko fight. It can continue for many rounds and decide large areas of the board." },
+    label:"Step 1 of 5: A ko position. The lone white stone at the centre (★) is surrounded by black on three sides — it has only one liberty left, at the point to its right. Black can capture it by playing there. But if black captures, white could immediately recapture, looping the board forever. That is what Ko prevents. Press 'Show next move →' to see black capture." },
+  { blacks:[[3,4],[4,3],[5,4],[3,5],[5,5],[4,5]],
+    whites:[[4,6],[3,6],[5,6]],
+    koAt:[4,5],
+    label:"Step 2 of 5: When a stone runs out of liberties, it is captured and removed from the board. Black plays at the one open liberty — the white stone at the centre is removed. Black's stone now sits there instead. White cannot recapture immediately — that would restore the exact previous board state, which Ko forbids. White must play elsewhere first." },
+  { blacks:[[3,4],[4,3],[5,4],[3,5],[5,5],[4,5]],
+    whites:[[4,6],[3,6],[5,6],[7,4]],
+    koAt:[4,5],
+    label:"Step 3 of 5: White plays a 'ko threat' at the bottom — a move that threatens something valuable elsewhere on the board. Black must respond to it, or lose more than just the ko stone. This is the ko bargain: to recapture, you must first make your opponent answer a threat." },
+  { blacks:[[3,4],[4,3],[5,4],[3,5],[5,5],[4,5],[7,3]],
+    whites:[[4,6],[3,6],[5,6],[7,4]],
+    koAt:[4,5],
+    label:"Step 4 of 5: Black responds to white's threat. The board state has now changed — it is no longer the same as when black captured. White is now legally allowed to recapture the ko stone. Watch what happens next." },
+  { blacks:[[3,4],[4,3],[5,4],[3,5],[5,5],[7,3]],
+    whites:[[4,6],[3,6],[5,6],[7,4],[4,5]],
+    koAt:[4,5],
+    label:"Step 5 of 5: White recaptures ★ — the black stone is removed and white's stone takes its place. The ko has swung back. Now black must find another ko threat before recapturing again. This back-and-forth — capture, threat, respond, recapture — is the ko fight. It can go on for many rounds and decide large areas of the board." },
 ];
 
 function setupKo(){
@@ -706,11 +706,12 @@ function draw(){
     }
   }
 
-  // Ko circle
-  if(L.mode==='ko'&&koIdx>0){
-    const step=KO_STEPS[Math.min(koIdx,KO_STEPS.length-1)];
-    if(step.koAt){
-      const[kr,kc]=step.koAt;
+  // Ko circle: step 0 marks the white stone about to be captured; steps 1+ mark koAt
+  if(L.mode==='ko'){
+    let kr,kc;
+    if(koIdx===0){[kr,kc]=[4,4];}
+    else{const step=KO_STEPS[koIdx];if(step.koAt){[kr,kc]=step.koAt;}else{kr=kc=null;}}
+    if(kr!=null){
       ctx.strokeStyle='rgba(220,60,60,0.85)';ctx.lineWidth=2.5;
       ctx.beginPath();ctx.arc(PAD+kc*CELL,PAD+kr*CELL,CELL*0.52,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
     }
@@ -750,7 +751,7 @@ function draw(){
   if(L.mode==='ko'){
     ctx.fillStyle='rgba(139,105,20,0.7)';ctx.fillRect(PAD,W-PAD+4,160,14);
     ctx.fillStyle='#fff';ctx.font='11px sans-serif';
-    ctx.fillText(koIdx===0?'Press button below to begin':'Step '+koIdx+' of '+(KO_STEPS.length-1),PAD+4,W-PAD+14);
+    ctx.fillText(koIdx===0?'Press button below to begin':'Step '+(koIdx+1)+' of '+KO_STEPS.length,PAD+4,W-PAD+14);
   }
 }
 
