@@ -227,9 +227,11 @@ function drawHealthOverlay(){
     const g=getGroup(blacks,r,c);
     g.forEach(s=>visB.add(pt(s[0],s[1])));
     const libs=getLibs(g).length;
-    const color=libs<=2?'rgba(220,60,60,0.35)':libs<=4?'rgba(255,160,0,0.3)':'rgba(60,180,80,0.28)';
+    const ring=libs<=2?'rgba(220,60,60,0.85)':libs<=4?'rgba(255,160,0,0.8)':'rgba(60,180,80,0.75)';
     for(const[gr,gc]of g){
-      ctx.fillStyle=color;ctx.beginPath();ctx.arc(PAD+gc*CELL,PAD+gr*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=ring;ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(PAD+gc*CELL,PAD+gr*CELL,CELL*0.47,0,Math.PI*2);ctx.stroke();
+      ctx.lineWidth=0.8;
     }
   }
   const visW=new Set();
@@ -238,9 +240,11 @@ function drawHealthOverlay(){
     const g=getGroup(whites,r,c);
     g.forEach(s=>visW.add(pt(s[0],s[1])));
     const libs=getLibs(g).length;
-    const color=libs<=2?'rgba(220,60,60,0.28)':libs<=4?'rgba(255,160,0,0.22)':'rgba(60,180,80,0.2)';
+    const ring=libs<=2?'rgba(220,60,60,0.85)':libs<=4?'rgba(255,160,0,0.8)':'rgba(60,180,80,0.75)';
     for(const[gr,gc]of g){
-      ctx.fillStyle=color;ctx.beginPath();ctx.arc(PAD+gc*CELL,PAD+gr*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=ring;ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(PAD+gc*CELL,PAD+gr*CELL,CELL*0.47,0,Math.PI*2);ctx.stroke();
+      ctx.lineWidth=0.8;
     }
   }
 }
@@ -471,9 +475,6 @@ function draw(){
   // Board background
   ctx.fillStyle='#DCB97A';ctx.fillRect(0,0,W,W);
 
-  // Health overlay (drawn before stones so stones appear on top)
-  if(L.showHealth)drawHealthOverlay();
-
   // Grid
   ctx.strokeStyle='#8B6914';ctx.lineWidth=0.8;
   for(let i=0;i<N;i++){
@@ -523,6 +524,9 @@ function draw(){
     ctx.fillStyle='#f2f0ec';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.stroke();
   }
+
+  // Health overlay: coloured ring drawn after stones so it's visible on top
+  if(L.showHealth)drawHealthOverlay();
 
   // Flash circle for two_phase transition
   if(flashPt){
