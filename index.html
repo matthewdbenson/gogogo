@@ -252,6 +252,7 @@
     <button onclick="resetBoard()">Reset</button>
     <button id="btnPrev" onclick="prevLesson()" style="display:none">← Back</button>
     <button id="btnNext" class="primary" onclick="nextLesson()" style="display:none">Next →</button>
+    <button id="btnKoPrev" class="ko-btn" onclick="koPrev()" style="display:none">← Prev step</button>
     <button id="btnKoStep" class="ko-btn" onclick="koStep()" style="display:none">Show next move →</button>
     <button id="btnHint" onclick="showHint()" style="display:none">💡 Hint</button>
     <button id="btnAnswer" onclick="showAnswer()" style="display:none">Show answer</button>
@@ -380,11 +381,26 @@ const SCENARIOS=[
 ];
 
 const KO_STEPS=[
-  {blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5]],whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[4,4]],koAt:null,label:"Here is a ko position, set up and ready to play. The two groups are interlocked — each side can capture one stone, but doing so allows the other to recapture endlessly. The circled stone is the ko stone. Press 'Show next move' to see how it unfolds."},
-  {addB:[4,4],captureAfter:true,koAt:[4,4],label:"Step 1 of 5: Black captures the ko stone ★. White would love to recapture immediately — but that would restore the exact previous board state. Ko forbids this."},
-  {addW:[7,4],koAt:[4,4],label:"Step 3 of 5: White must play a 'ko threat' elsewhere first — bottom centre. This forces black to respond or lose something valuable."},
-  {addB:[7,3],koAt:[4,4],label:"Step 4 of 5: Black responds to the threat. The board state has now changed — white is legally allowed to recapture the ko stone."},
-  {addW:[4,4],removeB:[4,4],koAt:[4,3],label:"Step 5 of 5: White recaptures. The ko swings back. Now black must play a ko threat before recapturing again. This back-and-forth is the ko fight — it can decide large areas of the board."},
+  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5]],
+    whites:[[3,4],[4,3],[4,4],[4,5],[5,4],[2,4]],
+    koAt:null,
+    label:"Step 1 of 5: A ko position. The white stone at the centre ★ has only one liberty — black can capture it. But if black captures, white could immediately recapture, restoring this exact position. That infinite loop is what Ko prevents. Press 'Show next move →' to see black capture." },
+  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[4,4]],
+    whites:[[3,4],[4,3],[4,5],[5,4],[2,4]],
+    koAt:[4,4],
+    label:"Step 2 of 5: Black captures ★ — the white stone is removed. Now the centre point belongs to black. White would love to recapture immediately, restoring the previous position. But Ko forbids it — you cannot recreate the exact previous board state. White must play elsewhere first." },
+  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[4,4]],
+    whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[7,4]],
+    koAt:[4,4],
+    label:"Step 3 of 5: White plays a 'ko threat' at the bottom — a move that threatens something valuable elsewhere. Black must respond, or lose more than just the ko stone. This is how the Ko rule creates a whole sub-game of threats and responses." },
+  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[4,4],[7,3]],
+    whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[7,4]],
+    koAt:[4,4],
+    label:"Step 4 of 5: Black responds to the threat. The board is now different from when black captured — so white is legally allowed to recapture the ko stone. Watch what happens next." },
+  { blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5],[7,3]],
+    whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[7,4],[4,4]],
+    koAt:[4,4],
+    label:"Step 5 of 5: White recaptures ★ — the black stone is removed. The ko has swung back. Now black must find a ko threat before recapturing again. This back-and-forth — capture, threat, respond, recapture — is the ko fight. It can continue for many rounds and decide large areas of the board." },
 ];
 
 function setupKo(){
@@ -398,22 +414,24 @@ function setupKo(){
 }
 
 window.koStep=function(){
-  if(koIdx>0){
-    // allow going back
-  }
+  if(koIdx>=KO_STEPS.length-1)return;
   koIdx++;
-  if(koIdx>=KO_STEPS.length){
-    document.getElementById('btnKoStep').style.display='none';
-    refreshUI();return;
-  }
   const s=KO_STEPS[koIdx];
-  if(s.addB)blacks.push([...s.addB]);
-  if(s.removeB){const[r,c]=s.removeB;blacks=blacks.filter(x=>!(x[0]===r&&x[1]===c));}
-  if(s.addW)whites.push([...s.addW]);
-  if(s.removeW){const[r,c]=s.removeW;whites=whites.filter(x=>!(x[0]===r&&x[1]===c));}
-  if(s.captureAfter)doCaptures();
+  blacks=s.blacks.map(x=>[...x]);
+  whites=s.whites.map(x=>[...x]);
   document.getElementById('tipbox').textContent=s.label;
   if(koIdx>=KO_STEPS.length-1)document.getElementById('btnKoStep').textContent='Done ✓';
+  draw();refreshUI();
+};
+
+window.koPrev=function(){
+  if(koIdx<=0)return;
+  koIdx--;
+  const s=KO_STEPS[koIdx];
+  blacks=s.blacks.map(x=>[...x]);
+  whites=s.whites.map(x=>[...x]);
+  document.getElementById('tipbox').textContent=s.label;
+  document.getElementById('btnKoStep').textContent='Show next move →';
   draw();refreshUI();
 };
 
@@ -524,7 +542,7 @@ const LESSONS=[
    status:()=>'Scenario '+(scenarioIdx+1)+' of '+SCENARIOS.length+(scenarioDone?' — press Next to continue':'— click to respond'),
    ok:'Good instincts are what separates a thinking player from a mechanical one. These judgements improve with every game you play.'},
   {part:'Part III: Ko',title:'Ko — The Looping Rule',badge:'10 / 11',
-   text:'Ko arises when two players could endlessly recapture each other\'s stone, creating an infinite loop. The rule: <strong>you cannot make a move that recreates the exact previous board position</strong>. Instead you must play a "ko threat" elsewhere first, forcing your opponent to respond before you recapture. Step through the animation using the button below.',
+   text:'Ko arises when two players could endlessly recapture each other\'s stone, looping the board forever. The rule: <strong>you cannot make a move that recreates the exact previous board position</strong>. To recapture a ko stone, you must first play a "ko threat" elsewhere — a move your opponent must answer. Watch the animation carefully: notice the stone at the centre actually disappears when captured, then reappears when recaptured.',
    hint:'Press "Show next move" to step through the ko fight',mode:'ko',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
    check:()=>koIdx>=KO_STEPS.length-1,
    status:()=>koIdx===0?'Press the button below to begin':koIdx<KO_STEPS.length-1?'Step '+koIdx+' of '+(KO_STEPS.length-1):'Complete ✓',
@@ -556,6 +574,7 @@ function refreshUI(){
     btnNext.style.display='none';
   }
   document.getElementById('btnPrev').style.display=cur>0?'inline-block':'none';
+  document.getElementById('btnKoPrev').style.display=(L.mode==='ko'&&koIdx>0)?'inline-block':'none';
   document.getElementById('btnKoStep').style.display=(L.mode==='ko'&&koIdx<KO_STEPS.length-1)?'inline-block':'none';
   document.getElementById('btnHint').style.display=(L.mode==='scenario'&&!scenarioDone)?'inline-block':'none';
   document.getElementById('btnAnswer').style.display=(L.mode==='scenario'&&!scenarioDone)?'inline-block':'none';
