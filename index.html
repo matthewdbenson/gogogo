@@ -141,14 +141,87 @@
     .app-shell { padding: 1rem 0.75rem 3rem; gap: 1rem; }
     .lesson-title { font-size: 19px; }
     #board { width: 300px !important; height: 300px !important; }
+    #landing-paths, #landing-resume { grid-template-columns: 1fr !important; }
   }
 </style>
 </head>
 <body>
-<div class="app-shell">
+<!-- PARKING LOT: consider a cleaner minimalist alternative to this landing screen in a future iteration -->
+<div id="landing-screen" style="max-width:680px;margin:0 auto;padding:2rem 1rem 4rem;display:flex;flex-direction:column;gap:2rem;">
+
+  <div style="display:flex;flex-direction:column;gap:0.5rem;">
+    <div style="font-family:var(--font);font-size:22px;color:var(--text);letter-spacing:-0.3px;">碁 Go Teacher</div>
+    <p style="font-size:15px;color:var(--text-secondary);line-height:1.7;max-width:560px;">Go is one of the world's oldest and deepest games. This app teaches it the way a patient human teacher would: one idea at a time, never moving faster than you're ready. Choose the path that fits how you think.</p>
+  </div>
+
+  <div id="landing-paths" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+    <!-- Path A -->
+    <div onclick="startPath('A')" style="background:var(--bg-card);border:2px solid var(--text-info);border-radius:var(--radius-lg);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;cursor:pointer;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--bg-info);color:var(--text-info);width:fit-content;">Rules-first</span>
+        <div style="font-size:17px;font-weight:500;color:var(--text);">How does the game work?</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Learn the mechanics clearly before worrying about strategy. Every rule is shown interactively on a real board — you play it, not just read it.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text-secondary);">
+        <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-info);color:var(--text-info);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">I</span><span><strong style="color:var(--text);font-weight:500;">Mechanics</strong> — board, liberties, capture, groups, eyes, territory</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-info);color:var(--text-info);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">II</span><span><strong style="color:var(--text);font-weight:500;">Strategy</strong> — opening, responding to your opponent</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-info);color:var(--text-info);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">III</span><span><strong style="color:var(--text);font-weight:500;">Ko</strong> — the looping rule, with stepped animation</span></div>
+      </div>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:12px;color:var(--text-tertiary);">11 steps complete · ~40 min</div>
+        <div style="font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius);background:var(--bg-info);color:var(--text-info);text-align:center;">Start here →</div>
+      </div>
+    </div>
+
+    <!-- Path B -->
+    <div style="background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;opacity:0.7;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--bg-success);color:var(--text-success);width:fit-content;">Intuition-first</span>
+          <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--bg-warning);color:var(--text-warning);width:fit-content;">Coming soon</span>
+        </div>
+        <div style="font-size:17px;font-weight:500;color:var(--text);">What am I even looking at?</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Learn to read the board before memorising rules. Start by asking "which stones look healthy?" — the same question strong players ask every move.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text-secondary);">
+        <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-success);color:var(--text-success);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">I</span><span><strong style="color:var(--text);font-weight:500;">Board health</strong> — strong vs weak, what needs attention</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-success);color:var(--text-success);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">II</span><span><strong style="color:var(--text);font-weight:500;">Shape</strong> — why some formations feel solid, others fragile</span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-success);color:var(--text-success);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">III</span><span><strong style="color:var(--text);font-weight:500;">Life &amp; death</strong> — two eyes as a felt concept, then tsumego</span></div>
+      </div>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:12px;color:var(--text-tertiary);">In development · 60+ steps planned</div>
+        <div style="font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius);background:var(--bg-secondary);color:var(--text-tertiary);text-align:center;cursor:default;">Coming soon</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="background:var(--bg-secondary);border-radius:var(--radius-lg);padding:1rem 1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.7;">
+    <strong style="color:var(--text);font-weight:500;">You don't have to choose permanently.</strong> Many players find it valuable to work through both paths — they approach the same ideas from opposite directions. Path A gives you the vocabulary; Path B gives you the intuition.
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div style="flex:1;height:0.5px;background:var(--border);"></div>
+    <div style="font-size:12px;color:var(--text-tertiary);">already started?</div>
+    <div style="flex:1;height:0.5px;background:var(--border);"></div>
+  </div>
+
+  <div id="landing-resume" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <button onclick="startPath('A')" style="font-size:13px;padding:7px 14px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--bg-card);color:var(--text);cursor:pointer;font-family:var(--font-ui);">→ Resume Path A</button>
+    <button disabled style="font-size:13px;padding:7px 14px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--bg-card);color:var(--text-tertiary);cursor:default;font-family:var(--font-ui);opacity:0.4;">→ Resume Path B</button>
+  </div>
+
+  <div style="font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:8px;">
+    <span style="font-size:14px;">ℹ️</span>
+    No prior knowledge of Go needed for either path. If you've tried learning before and got stuck, you're exactly who this is for.
+  </div>
+
+</div>
+<div class="app-shell" id="app-shell" style="display:none;">
 
   <header class="app-header">
-    <div class="app-logo">碁 Go Teacher <span>Path A</span></div>
+    <div class="app-logo" onclick="showLanding()" style="cursor:pointer;" title="Back to home">碁 Go Teacher <span>Path A</span></div>
     <div class="header-path">Rules-first · 11 steps</div>
   </header>
 
@@ -307,8 +380,8 @@ const SCENARIOS=[
 ];
 
 const KO_STEPS=[
-  {blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5]],whites:[[3,4],[4,3],[4,5],[5,4],[2,4]],koAt:[4,4],label:"Step 1 of 5: This is a ko position. The circled point is where the ko stone sits. Black and white can each capture one stone endlessly here. Black has just captured — the white stone at centre is gone."},
-  {addB:[4,4],koAt:[4,4],label:"Step 2 of 5: Black captures ★. White would love to recapture immediately — but that would restore the exact previous board state. Ko forbids this."},
+  {blacks:[[3,3],[3,5],[4,2],[4,6],[5,3],[5,5]],whites:[[3,4],[4,3],[4,5],[5,4],[2,4],[4,4]],koAt:null,label:"Here is a ko position, set up and ready to play. The two groups are interlocked — each side can capture one stone, but doing so allows the other to recapture endlessly. The circled stone is the ko stone. Press 'Show next move' to see how it unfolds."},
+  {addB:[4,4],captureAfter:true,koAt:[4,4],label:"Step 1 of 5: Black captures the ko stone ★. White would love to recapture immediately — but that would restore the exact previous board state. Ko forbids this."},
   {addW:[7,4],koAt:[4,4],label:"Step 3 of 5: White must play a 'ko threat' elsewhere first — bottom centre. This forces black to respond or lose something valuable."},
   {addB:[7,3],koAt:[4,4],label:"Step 4 of 5: Black responds to the threat. The board state has now changed — white is legally allowed to recapture the ko stone."},
   {addW:[4,4],removeB:[4,4],koAt:[4,3],label:"Step 5 of 5: White recaptures. The ko swings back. Now black must play a ko threat before recapturing again. This back-and-forth is the ko fight — it can decide large areas of the board."},
@@ -338,6 +411,7 @@ window.koStep=function(){
   if(s.removeB){const[r,c]=s.removeB;blacks=blacks.filter(x=>!(x[0]===r&&x[1]===c));}
   if(s.addW)whites.push([...s.addW]);
   if(s.removeW){const[r,c]=s.removeW;whites=whites.filter(x=>!(x[0]===r&&x[1]===c));}
+  if(s.captureAfter)doCaptures();
   document.getElementById('tipbox').textContent=s.label;
   if(koIdx>=KO_STEPS.length-1)document.getElementById('btnKoStep').textContent='Done ✓';
   draw();refreshUI();
@@ -695,6 +769,7 @@ function onMove(e){
   draw();
 }
 
+let _hoverClearTimer=null;
 function onTouch(e){
   e.preventDefault();
   const t=e.changedTouches[0];
@@ -703,9 +778,38 @@ function onTouch(e){
   const scaleY=canvas.height/rect.height;
   const p=snap((t.clientX-rect.left)*scaleX,(t.clientY-rect.top)*scaleY);
   if(!p)return;
+  const[r,c]=p;
+  if(has(blacks,r,c)){
+    hoverPt=[r,c];draw();
+    clearTimeout(_hoverClearTimer);
+    _hoverClearTimer=setTimeout(()=>{hoverPt=null;draw();},1500);
+    return;
+  }
   hoverPt=null;
-  const fakeEvt={clientX:t.clientX,clientY:t.clientY};
-  onClick(fakeEvt);
+  onClick({clientX:t.clientX,clientY:t.clientY});
+}
+
+function showLanding(){
+  document.getElementById('landing-screen').style.display='flex';
+  document.getElementById('app-shell').style.display='none';
+}
+
+function startPath(path){
+  document.getElementById('landing-screen').style.display='none';
+  document.getElementById('app-shell').style.display='flex';
+  if(path==='A'){
+    try{
+      const savedCur=parseInt(localStorage.getItem('go-teacher-progress')||'0');
+      if(savedCur>0&&savedCur<LESSONS.length-1)cur=savedCur;
+      else cur=0;
+      const savedKey=localStorage.getItem('go-teacher-api-key');
+      if(savedKey&&savedKey.startsWith('sk-ant-')){
+        document.getElementById('api-section').style.display='none';
+        document.getElementById('chat-area').style.display='flex';
+      }
+    }catch(e){cur=0;}
+    applyLesson();
+  }
 }
 
 function applyLesson(){
@@ -826,6 +930,7 @@ canvas.addEventListener('click',onClick);
 canvas.addEventListener('mousemove',onMove);
 canvas.addEventListener('mouseleave',()=>{hoverPt=null;draw();});
 canvas.addEventListener('touchstart',onTouch,{passive:false});
+canvas.addEventListener('touchend',()=>{clearTimeout(_hoverClearTimer);_hoverClearTimer=setTimeout(()=>{hoverPt=null;draw();},1500);});
 
 // Check for saved API key
 try{
@@ -834,12 +939,9 @@ try{
     document.getElementById('api-section').style.display='none';
     document.getElementById('chat-area').style.display='flex';
   }
-  // Restore progress
-  const savedCur=parseInt(localStorage.getItem('go-teacher-progress')||'0');
-  if(savedCur>0&&savedCur<LESSONS.length)cur=savedCur;
 }catch(e){}
 
-applyLesson();
+showLanding();
 </script>
 </body>
 </html>
