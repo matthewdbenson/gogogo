@@ -266,13 +266,13 @@ const LESSONS=[
     ok:'This habit — scanning for weak groups before deciding your move — is the foundation of strategic thinking in Go.' },
 
   { part:'Part I: Board Health', title:'Your Own Stones Limit Your Own Liberties', badge:'2 / 8',
-    text:'Place a black stone touching the one already on the board. Watch the liberty count update. Your own stones block each other\'s liberties — the shared side between two touching stones counts for neither. This is why <strong>how</strong> you connect stones matters, not just whether you connect them.',
+    text:'Connecting your stones is <strong>good</strong> — a connected group is much harder to capture than isolated stones. But the <em>shape</em> of your connection matters.<br><br>The stone in the centre starts with 4 liberties. Place a second stone touching it — the group now has 6 liberties, not 8, because the shared side between them counts for neither stone. You\'ve gained liberties overall, but not as many as if the two stones were separate.<br><br>Now try placing a third stone. Does it add more liberties or fewer? It depends on <em>where</em> you place it. A stone that extends outward into open space adds more liberties. A stone that tucks in beside an existing stone adds fewer.<br><br><strong>The lesson:</strong> connect your stones, but extend toward open space rather than folding back on yourself.',
     hint:'Place a black stone touching the centre stone and watch the liberty count',
     mode:'place_watch', showHealth:true,
     setup:{ blacks:[[4,4]], whites:[] },
     check:()=>blacks.length>=2&&blacks.some(([r,c])=>adj(4,4).some(([nr,nc])=>nr===r&&nc===c)),
     status:()=>'Group liberties: '+getGroupLibCount(),
-    ok:'Two touching stones share 6 liberties — not 8 — because the shared side blocks both. Crowding your own group wastes liberties.' },
+    ok:'The red ring on a stone means it\'s isolated with few liberties — vulnerable. Green means healthy. As you build groups in this lesson, watch how the rings change colour as you add stones. Extending outward keeps groups green. Folding inward risks turning them amber or red.' },
 
   { part:'Part I: Board Health', title:'Counting Liberties Quickly', badge:'3 / 8',
     text:'Tap every empty point directly adjacent to the black group to count its liberties. Up, down, left, right only — not diagonals. Work through all three positions.',
