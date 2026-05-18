@@ -124,7 +124,7 @@
 
   <header class="app-header">
     <div class="app-logo" onclick="window.location.href='index.html'" style="cursor:pointer;" title="Back to paths">碁 Go Teacher <span>Path B</span></div>
-    <div class="header-path">Intuition-first · 7 steps</div>
+    <div class="header-path">Intuition-first · 8 steps</div>
   </header>
 
   <div class="progress-section">
@@ -253,7 +253,7 @@ function showFeedback(msg,type){
 // ── Lessons ────────────────────────────────────────────────────────────────
 const LESSONS=[
 
-  { part:'Part I: Board Health', title:'Two Kinds of Stones', badge:'1 / 7',
+  { part:'Part I: Board Health', title:'Two Kinds of Stones', badge:'1 / 8',
     text:'Not all stones are equal. Some groups are healthy — plenty of breathing room, hard to attack. Others are nervous — few liberties, easy targets. The colour overlay shows you at a glance: <strong style="color:#1a7a3c">green</strong> = healthy, <strong style="color:#7a4f00">amber</strong> = watch this, <strong style="color:#8b1a1a">red</strong> = urgent. Before thinking about where to play, ask: <strong>which of my stones needs attention?</strong>',
     hint:'Read the board — which group looks nervous?',
     mode:'observe', showHealth:true,
@@ -261,7 +261,7 @@ const LESSONS=[
     check:()=>true, status:()=>'',
     ok:'This habit — scanning for weak groups before deciding your move — is the foundation of strategic thinking in Go.' },
 
-  { part:'Part I: Board Health', title:'Your Own Stones Limit Your Own Liberties', badge:'2 / 7',
+  { part:'Part I: Board Health', title:'Your Own Stones Limit Your Own Liberties', badge:'2 / 8',
     text:'Place a black stone touching the one already on the board. Watch the liberty count update. Your own stones block each other\'s liberties — the shared side between two touching stones counts for neither. This is why <strong>how</strong> you connect stones matters, not just whether you connect them.',
     hint:'Place a black stone touching the centre stone and watch the liberty count',
     mode:'place_watch', showHealth:true,
@@ -270,7 +270,7 @@ const LESSONS=[
     status:()=>'Group liberties: '+getGroupLibCount(),
     ok:'Two touching stones share 6 liberties — not 8 — because the shared side blocks both. Crowding your own group wastes liberties.' },
 
-  { part:'Part I: Board Health', title:'Counting Liberties Quickly', badge:'3 / 7',
+  { part:'Part I: Board Health', title:'Counting Liberties Quickly', badge:'3 / 8',
     text:'Tap every empty point directly adjacent to the black group to count its liberties. Up, down, left, right only — not diagonals. Work through all three positions.',
     hint:'Tap each open adjacent point — find them all to continue',
     mode:'tap_liberties', showHealth:false,
@@ -285,7 +285,7 @@ const LESSONS=[
     check:()=>tapAllDone, status:()=>'',
     ok:'Fast liberty-counting develops with practice. You don\'t need to count every move — but always know roughly which groups are in danger.' },
 
-  { part:'Part I: Board Health', title:'When Does a Threat Matter?', badge:'4 / 7',
+  { part:'Part I: Board Health', title:'When Does a Threat Matter?', badge:'4 / 8',
     text:'Not every stone in danger needs saving. A single stone with few strategic connections may be worth sacrificing. A large group in atari is a crisis. Click on the black group you think needs <strong>urgent</strong> attention right now.',
     hint:'Click on any stone in the group that is most at risk',
     mode:'health_click', showHealth:true,
@@ -299,7 +299,7 @@ const LESSONS=[
     check:()=>healthClickDone, status:()=>'',
     ok:'Ask not just "is this stone in atari?" but "is this stone worth saving?" Urgency is always relative.' },
 
-  { part:'Part I: Board Health', title:'Strong and Weak — The Whole Board', badge:'5 / 7',
+  { part:'Part I: Board Health', title:'Strong and Weak — The Whole Board', badge:'5 / 8',
     text:'At any point in the game, every group is either strong (settled, safe, can be ignored) or weak (vulnerable, needs attention — yours to fix or your opponent\'s to attack). Click on the black group in the most danger.',
     hint:'Click on the weakest black group on the board',
     mode:'health_click', showHealth:true,
@@ -318,7 +318,7 @@ const LESSONS=[
     check:()=>healthClickDone, status:()=>'',
     ok:'When you can spot the weakest group at a glance, you\'re starting to read the board rather than just place stones.' },
 
-  { part:'Part I: Board Health', title:"Don't Fix What Isn't Broken", badge:'6 / 7',
+  { part:'Part I: Board Health', title:"Don't Fix What Isn't Broken", badge:'6 / 8',
     text:'Black has a strong group in the top-left and a weak isolated stone in trouble. White has just played. Where do you play?',
     hint:'Click where you would play black',
     mode:'scenario', showHealth:true,
@@ -342,7 +342,7 @@ const LESSONS=[
     check:()=>scenarioDone, status:()=>scenarioDone?'Click made — press Next to continue':'Click where you would play black',
     ok:'A move spent reinforcing a safe group is almost always a wasted move. Strong groups can wait. Weak groups cannot.' },
 
-  { part:'Part I: Board Health', title:"What Changed?", badge:'7 / 7',
+  { part:'Part I: Board Health', title:"What Changed?", badge:'7 / 8',
     text:'White is about to play. Look at the board carefully — note which black groups look healthy and which look nervous. Then press <strong>White plays →</strong> to see the move, and click on the black group that just became more dangerous.',
     hint:'Study the board, then press "White plays →"',
     mode:'two_phase', showHealth:true,
@@ -363,6 +363,11 @@ const LESSONS=[
     ],
     check:()=>healthClickDone, status:()=>'',
     ok:'Every move changes something. The habit of asking "what just changed?" is what separates a thinking player from one who\'s just placing stones.' },
+
+  { part:'Complete!', title:"You're ready to play", badge:'8 / 8',
+    text:'You\'ve developed the most important habit in Go: <strong>reading the board before placing a stone</strong>. You know how to spot weak and strong groups, count liberties quickly, recognise when a threat is urgent, and ask "what just changed?" after every move.<br><br><strong>Your next step: play a real game.</strong><br><br>Go to <a href="https://online-go.com" target="_blank">online-go.com</a> — free, 9×9 board, play against the computer at the weakest setting. As you play, use what you\'ve built here: scan the board before every move, find the weakest group, ask what your opponent\'s move changed.<br><br>You\'ll lose your first games. That\'s fine — every loss is a board position to read. Come back and work through the tactics and life &amp; death modules when they\'re ready.<br><br><strong>What comes next in this app:</strong><br>Path A (rules-first) if you haven\'t done it · Tactics: ladders, nets, snapback · Life &amp; death puzzles · Shape: good vs. bad formations',
+    hint:'', mode:'done', showHealth:false,
+    check:()=>true, status:()=>'', ok:'' },
 
 ];
 
@@ -387,9 +392,18 @@ function refreshUI(){
   document.getElementById('ltitle').textContent=L.title;
 
   const isDone=L.mode==='done';
+  document.getElementById('ltext').style.display=isDone?'none':'block';
   document.getElementById('board-wrap').style.display=isDone?'none':'flex';
   document.getElementById('controls').style.display=isDone?'none':'flex';
   document.getElementById('done-screen').style.display=isDone?'flex':'none';
+  if(isDone){
+    document.getElementById('done-screen').innerHTML=
+      '<div style="font-size:14px;color:var(--text-secondary);line-height:1.75;font-family:var(--font-ui)">'+L.text+'</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:0.5rem;">'+
+      '<button class="primary" onclick="restartPath()">↺ Start Path B again</button>'+
+      '<a href="https://online-go.com" target="_blank"><button>Play on OGS ↗</button></a>'+
+      '</div>';
+  }
 
   const btnNext=document.getElementById('btnNext');
   if(!isDone&&shouldShowNext()){
