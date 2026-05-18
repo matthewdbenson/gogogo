@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Teacher — How a game ends</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --bg-card: #ffffff;
+    --bg-secondary: #f4f2ee;
+    --bg-info: #eef4ff;
+    --bg-success: #edfbf3;
+    --bg-warning: #fff8ec;
+    --text: #1a1a18;
+    --text-secondary: #5c5b57;
+    --text-tertiary: #9c9b96;
+    --text-info: #1a5fb4;
+    --text-success: #1a7a3c;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: 'Georgia', 'Times New Roman', serif;
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --bg-card: #242420;
+      --bg-secondary: #2c2c28;
+      --bg-info: #0d1f3c;
+      --bg-success: #0d2a1a;
+      --bg-warning: #2a1f00;
+      --text: #f0ede6;
+      --text-secondary: #a8a49c;
+      --text-tertiary: #6a6760;
+      --text-info: #7ab3f0;
+      --text-success: #6ecf8e;
+      --border: rgba(255,255,255,0.1);
+      --border-strong: rgba(255,255,255,0.18);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-ui); min-height: 100vh; }
+  .app-shell { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .app-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+  .app-logo { font-family: var(--font); font-size: 18px; color: var(--text); letter-spacing: -0.3px; }
+  .app-logo span { color: var(--text-tertiary); font-weight: 400; font-size: 14px; margin-left: 8px; font-family: var(--font-ui); }
+  .header-path { font-size: 12px; color: var(--text-tertiary); background: var(--bg-secondary); padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--border); }
+  .progress-section { display: flex; flex-direction: column; gap: 8px; }
+  .progress-row { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); cursor: pointer; transition: transform 0.12s, background 0.12s; flex-shrink: 0; border: none; padding: 0; }
+  .dot:hover { transform: scale(1.5); }
+  .dot.done { background: var(--text-success); }
+  .dot.active { background: var(--text-info); transform: scale(1.35); }
+  .progress-label { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); }
+  .badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; font-family: var(--font-ui); }
+  .badge-part { background: var(--bg-secondary); color: var(--text-secondary); border: 0.5px solid var(--border); }
+  .badge-step { background: var(--bg-info); color: var(--text-info); }
+  .lesson-title { font-family: var(--font); font-size: 22px; color: var(--text); line-height: 1.3; letter-spacing: -0.3px; }
+  .lesson-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; font-size: 14px; color: var(--text-secondary); line-height: 1.75; font-family: var(--font-ui); }
+  .lesson-card strong { color: var(--text); font-weight: 500; }
+  .lesson-card em { font-style: italic; }
+  .lesson-card a { color: var(--text-info); text-decoration: underline; text-underline-offset: 3px; }
+  .board-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  #board { display: block; border-radius: var(--radius); box-shadow: 0 2px 12px rgba(0,0,0,0.08); max-width: 100%; }
+  .board-hint { font-size: 12px; color: var(--text-tertiary); text-align: center; font-family: var(--font-ui); }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font-size: 13px; padding: 7px 14px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); cursor: pointer; font-family: var(--font-ui); transition: background 0.1s, opacity 0.1s; white-space: nowrap; }
+  button:hover { background: var(--bg-secondary); }
+  button.primary { background: var(--bg-info); color: var(--text-info); border-color: transparent; }
+  button.primary:hover { opacity: 0.85; }
+  .app-footer { text-align: center; font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); padding-top: 1rem; border-top: 0.5px solid var(--border); }
+  @media (max-width: 480px) {
+    .app-shell { padding: 1rem 0.75rem 3rem; gap: 1rem; }
+    .lesson-title { font-size: 19px; }
+    #board { width: 300px !important; height: 300px !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app-shell" id="app-shell">
+
+  <header class="app-header">
+    <div class="app-logo" onclick="window.location.href='index.html'" style="cursor:pointer;" title="Back to home">碁 Go Teacher <span>How a game ends</span></div>
+    <div class="header-path">5 steps · read anytime</div>
+  </header>
+
+  <div class="progress-section">
+    <div class="progress-row" id="progress"></div>
+    <div class="progress-label" id="progress-label"></div>
+  </div>
+
+  <div class="badges">
+    <span class="badge badge-part" id="partbadge"></span>
+    <span class="badge badge-step" id="lbadge"></span>
+  </div>
+
+  <h1 class="lesson-title" id="ltitle"></h1>
+  <div class="lesson-card" id="ltext"></div>
+
+  <div class="board-wrap" id="board-wrap">
+    <canvas id="board" width="320" height="320"></canvas>
+    <div class="board-hint" id="lhint"></div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button id="btnPrev" onclick="prevLesson()" style="display:none">← Back</button>
+    <button id="btnNext" class="primary" onclick="nextLesson()">Next →</button>
+  </div>
+
+  <div id="done-card" style="display:none;background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;flex-direction:column;gap:1.25rem;text-align:center;">
+    <div style="font-family:var(--font);font-size:20px;color:var(--text);line-height:1.4;">You now understand how a Go game ends.</div>
+    <div style="font-size:14px;color:var(--text-secondary);line-height:1.7;">Head to Path A or Path B to start learning.</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="primary" onclick="window.location.href='index.html'">Start Path A →</button>
+      <button style="background:var(--bg-success);color:var(--text-success);border-color:transparent;" onclick="window.location.href='path-b.html'">Start Path B →</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:13px;color:var(--text-tertiary);padding:1rem 0;">
+    Questions? Use the Ask the teacher box in <a href="index.html" style="color:var(--text-info)">Path A</a> or <a href="path-b.html" style="color:var(--text-info)">Path B</a>.
+  </div>
+
+  <footer class="app-footer">
+    Go Teacher · <a href="index.html" style="color:var(--text-tertiary);">Path A</a> · <a href="path-b.html" style="color:var(--text-tertiary);">Path B</a> · <a href="https://online-go.com" style="color:var(--text-tertiary);">Play on OGS</a>
+  </footer>
+
+</div>
+
+<script>
+const N=9,PAD=22;
+let canvas,ctx,CELL;
+let cur=0;
+let blacks=[],whites=[];
+
+function pt(r,c){return r+','+c;}
+function fromPt(s){const[a,b]=s.split(',');return[+a,+b];}
+function has(arr,r,c){return arr.some(s=>s[0]===r&&s[1]===c);}
+function adj(r,c){return[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].filter(([a,b])=>a>=0&&a<N&&b>=0&&b<N);}
+
+function getTerritoryPts(arr){
+  if(arr.length<4)return[];
+  const vis=new Set(),res=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    if(has(arr,r,c)||has(whites,r,c)||vis.has(pt(r,c)))continue;
+    const region=[],q=[[r,c]],rs=new Set([pt(r,c)]);let edge=false;
+    while(q.length){
+      const[cr,cc]=q.shift();region.push([cr,cc]);
+      if(cr===0||cr===N-1||cc===0||cc===N-1)edge=true;
+      for(const[nr,nc]of adj(cr,cc))
+        if(!has(arr,nr,nc)&&!has(whites,nr,nc)&&!rs.has(pt(nr,nc))){rs.add(pt(nr,nc));q.push([nr,nc]);}
+    }
+    rs.forEach(v=>vis.add(v));
+    const bord=new Set();
+    for(const[cr,cc]of region)for(const[nr,nc]of adj(cr,cc)){
+      if(has(arr,nr,nc))bord.add('b');
+      if(has(whites,nr,nc))bord.add('w');
+    }
+    if(!edge&&bord.size===1&&bord.has('b'))region.forEach(p=>res.push(p));
+  }
+  return res;
+}
+
+function getWhiteTerritoryPts(){
+  if(whites.length<4)return[];
+  const vis=new Set(),res=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    if(has(whites,r,c)||has(blacks,r,c)||vis.has(pt(r,c)))continue;
+    const region=[],q=[[r,c]],rs=new Set([pt(r,c)]);let edge=false;
+    while(q.length){
+      const[cr,cc]=q.shift();region.push([cr,cc]);
+      if(cr===0||cr===N-1||cc===0||cc===N-1)edge=true;
+      for(const[nr,nc]of adj(cr,cc))
+        if(!has(whites,nr,nc)&&!has(blacks,nr,nc)&&!rs.has(pt(nr,nc))){rs.add(pt(nr,nc));q.push([nr,nc]);}
+    }
+    rs.forEach(v=>vis.add(v));
+    const bord=new Set();
+    for(const[cr,cc]of region)for(const[nr,nc]of adj(cr,cc)){
+      if(has(whites,nr,nc))bord.add('w');
+      if(has(blacks,nr,nc))bord.add('b');
+    }
+    if(!edge&&bord.size===1&&bord.has('w'))region.forEach(p=>res.push(p));
+  }
+  return res;
+}
+
+const LESSONS=[
+
+  { part:'How a game ends', title:'Passing — and when the game stops', badge:'1 / 5',
+    text:'Go doesn\'t end at a fixed number of moves. It ends when <strong>both players pass consecutively</strong> — meaning neither player wants to play another stone. This happens when the board is settled: all territories are clearly defined, no profitable invasions remain, and all weak groups are either alive or dead. Either player can pass at any time. Two passes in a row: game over.<br><br>In your first games, it may not be obvious when to stop. A simple rule: if you genuinely can\'t see a move that gains you anything, pass. If your opponent also passes, you\'re done.',
+    hint:'Press Next when ready',
+    mode:'observe', showTerritory:false,
+    setup:{ blacks:[], whites:[] },
+    ok:'' },
+
+  { part:'How a game ends', title:'Dead stones — agreeing what\'s captured', badge:'2 / 5',
+    text:'After both players pass, you look at the board together and identify <strong>dead stones</strong> — groups that couldn\'t have survived even if the game had continued. A group is dead if it cannot make two eyes and cannot escape.<br><br>Dead stones are removed from the board and added to the opponent\'s prisoner pile — they count against you exactly like captured stones.<br><br>Both players must <strong>agree</strong> on which groups are dead. If there\'s a disagreement, play resumes until it\'s resolved. In your first games on OGS, the computer will help identify dead groups — you just confirm.',
+    hint:'Press Next when ready',
+    mode:'observe', showTerritory:false,
+    setup:{ blacks:[[1,1],[1,2],[2,1],[2,2],[0,3],[0,4],[0,5],[1,5],[2,5],[2,4],[2,3],[1,3],
+                    [6,6],[6,7],[7,6],[7,7],[5,4],[5,5],[5,6],[5,7],[5,8],[6,4],[7,4],[8,4],[8,5],[8,6],[8,7],[8,8]],
+            whites:[[0,0],[0,1],[0,2],[1,0],[2,0],[3,1],[3,2],[3,3],[3,4],[3,5],
+                    [4,6],[4,7],[4,8],[5,3],[6,3],[6,8],[7,3],[7,8]] },
+    ok:'' },
+
+  { part:'How a game ends', title:'Counting territory', badge:'3 / 5',
+    text:'Territory = empty points completely surrounded by your stones. After dead stones are removed, you count the empty points inside each player\'s fences.<br><br>You also count <strong>prisoners</strong> — stones captured during the game, plus the dead stones just removed. Each prisoner counts as one point against the player who lost them.<br><br><strong>Final score = territory + prisoners</strong>.<br><br>On the board shown, black has enclosed territory in the top-right and bottom areas. White has enclosed territory on the left and centre. Count the empty points inside each fence — that\'s the score.',
+    hint:'Green = black territory · Blue = white territory',
+    mode:'observe', showTerritory:'both',
+    setup:{ blacks:[[0,5],[0,6],[0,7],[0,8],[1,5],[2,5],[2,6],[2,7],[2,8],[1,8],
+                    [6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[7,4],[6,4],[6,1],[6,2],[6,3]],
+            whites:[[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,2],[2,3],[2,4],[3,4],[4,4],[4,3],[4,2],[4,1],[4,0],[3,0]] },
+    ok:'' },
+
+  { part:'How a game ends', title:'Komi — white\'s compensation', badge:'4 / 5',
+    text:'Black plays first, which is a significant advantage in Go. To compensate, <strong>white receives bonus points called komi</strong> before counting begins.<br><br>On a 9×9 board, komi is typically <strong>6.5 points</strong>. The 0.5 is deliberate — it prevents draws. One player always wins by at least half a point.<br><br>So if the final count is black 18, white 12 + 6.5 komi = 18.5: white wins by half a point. If black has 19 and white has 12 + 6.5 = 18.5: black wins by half a point.<br><br>On OGS, komi is applied automatically — you don\'t need to calculate it yourself.',
+    hint:'Press Next when ready',
+    mode:'observe', showTerritory:false,
+    setup:{ blacks:[], whites:[] },
+    ok:'' },
+
+  { part:'How a game ends', title:'A complete example', badge:'5 / 5',
+    text:'Here is a finished 9×9 game. Both players have passed. Dead stones have been removed.<br><br><strong>Black territory</strong> (top-right corner): 6 empty points.<br><strong>White territory</strong> (left side): 8 empty points.<br><strong>Prisoners:</strong> black captured 3 white stones during the game. White captured 1 black stone.<br><br><strong>Final score:</strong><br>Black: 6 territory + 3 prisoners = <strong>9 points</strong><br>White: 8 territory + 1 prisoner + 6.5 komi = <strong>15.5 points</strong><br><strong>White wins by 6.5 points.</strong><br><br>In your first games don\'t worry about close scores — just play, and let OGS count for you. The habit of building territory and capturing stones is what matters early on.<!-- PARKING LOT: upgrade this step to an interactive board where the player clicks to count territory points themselves -->',
+    hint:'Green = black territory · Blue = white territory',
+    mode:'observe', showTerritory:'both',
+    setup:{ blacks:[[0,5],[0,6],[0,7],[0,8],[1,5],[1,8],[2,5],[2,6],[2,7],[2,8],
+                    [3,3],[3,4],[4,3],[4,4],[5,3],[5,4],[6,3],[6,4],[7,3],[7,4],[8,3],[8,4]],
+            whites:[[0,0],[0,1],[0,2],[0,3],[0,4],[1,0],[1,4],[2,0],[2,4],[3,0],[3,4],
+                    [4,0],[4,1],[4,2],[5,0],[5,1],[5,2],[6,0],[6,1],[6,2],[7,0],[8,0]] },
+    ok:'' },
+
+];
+
+function draw(){
+  const L=LESSONS[cur];
+  const W=canvas.width;
+  ctx.clearRect(0,0,W,W);
+
+  // Board background
+  ctx.fillStyle='#DCB97A';ctx.fillRect(0,0,W,W);
+
+  // Grid lines
+  ctx.strokeStyle='#8B6914';ctx.lineWidth=0.8;
+  for(let i=0;i<N;i++){
+    ctx.beginPath();ctx.moveTo(PAD+i*CELL,PAD);ctx.lineTo(PAD+i*CELL,PAD+(N-1)*CELL);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD,PAD+i*CELL);ctx.lineTo(PAD+(N-1)*CELL,PAD+i*CELL);ctx.stroke();
+  }
+
+  // Star points
+  ctx.fillStyle='#8B6914';
+  for(const[r,c]of[[2,2],[2,6],[6,2],[6,6],[4,4]]){
+    ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,3,0,Math.PI*2);ctx.fill();
+  }
+
+  // Stones
+  for(const[r,c]of blacks){
+    ctx.fillStyle='#111';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+  }
+  for(const[r,c]of whites){
+    ctx.fillStyle='#f2f0ec';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.stroke();
+  }
+
+  // Territory overlay (after stones, on empty points only)
+  if(L.showTerritory==='both'){
+    for(const[r,c]of getTerritoryPts(blacks)){
+      ctx.fillStyle='rgba(60,180,80,0.42)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(30,140,50,0.7)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+    for(const[r,c]of getWhiteTerritoryPts()){
+      ctx.fillStyle='rgba(60,120,220,0.42)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(30,80,180,0.7)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+  }
+}
+
+function buildDots(){
+  const p=document.getElementById('progress');p.innerHTML='';
+  LESSONS.forEach((L,i)=>{
+    const d=document.createElement('button');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.title=L.title;
+    d.setAttribute('aria-label','Jump to: '+L.title);
+    d.addEventListener('click',()=>{cur=i;applyLesson();});
+    p.appendChild(d);
+  });
+  document.getElementById('progress-label').textContent=
+    cur<LESSONS.length-1?'Step '+(cur+1)+' of '+LESSONS.length+' · click any dot to jump':'All steps complete · click any dot to revisit';
+}
+
+function applyLesson(){
+  const L=LESSONS[cur];
+  blacks=L.setup.blacks.map(x=>[...x]);
+  whites=L.setup.whites.map(x=>[...x]);
+  document.getElementById('partbadge').textContent=L.part;
+  document.getElementById('lbadge').textContent='Step '+L.badge;
+  document.getElementById('ltitle').textContent=L.title;
+  document.getElementById('ltext').innerHTML=L.text;
+  document.getElementById('lhint').textContent=L.hint;
+  document.getElementById('btnPrev').style.display=cur>0?'inline-block':'none';
+  document.getElementById('btnNext').textContent=cur<LESSONS.length-1?'Next →':'Finish →';
+  buildDots();
+  draw();
+}
+
+function showDone(){
+  document.getElementById('ltitle').textContent='';
+  document.getElementById('ltext').textContent='';
+  document.getElementById('lhint').textContent='';
+  document.getElementById('partbadge').textContent='';
+  document.getElementById('lbadge').textContent='';
+  document.getElementById('controls').style.display='none';
+  document.getElementById('board-wrap').style.display='none';
+  document.getElementById('done-card').style.display='flex';
+  document.querySelectorAll('.dot').forEach(d=>{d.classList.remove('active');d.classList.add('done');});
+  document.getElementById('progress-label').textContent='All steps complete · click any dot to revisit';
+}
+
+window.nextLesson=function(){
+  if(cur<LESSONS.length-1){cur++;applyLesson();}
+  else{showDone();}
+};
+
+window.prevLesson=function(){
+  if(cur>0){cur--;applyLesson();}
+};
+
+// Init
+canvas=document.getElementById('board');
+ctx=canvas.getContext('2d');
+CELL=(320-PAD*2)/(N-1);
+applyLesson();
+</script>
+</body>
+</html>
