@@ -198,7 +198,7 @@ const LESSONS=[
     ok:'' },
 
   { part:'How a game ends', title:'Dead stones — agreeing what\'s captured', badge:'2 / 5',
-    text:'After both players pass, you look at the board together and identify <strong>dead stones</strong> — groups that couldn\'t have survived even if the game had continued. A group is dead if it cannot make two eyes and cannot escape.<br><br>Dead stones are removed from the board and added to the opponent\'s prisoner pile — they count against you exactly like captured stones.<br><br>Both players must <strong>agree</strong> on which groups are dead. If there\'s a disagreement, play resumes until it\'s resolved. In your first games on OGS, the computer will help identify dead groups — you just confirm.',
+    text:'After both players pass, you look at the board together and identify <strong>dead stones</strong> — groups that couldn\'t have survived even if the game had continued. A group is dead if it cannot make two eyes and cannot escape.<br><br>Dead stones are removed from the board and added to the opponent\'s prisoner pile — they count against you exactly like captured stones.<br><br>Both players must <strong>agree</strong> on which groups are dead. If there\'s a disagreement, play resumes until it\'s resolved. In your first games on OGS, the computer will help identify dead groups — you just confirm.<br><br><strong>Why does play stop at all?</strong> Play ends when both players agree there are no more useful moves — any stone either player placed in the opponent\'s territory would simply be captured, gaining nothing. Rather than play out those pointless captures, both players pass and agree on which groups are dead. This is a gentleman\'s agreement built into the rules of Go.',
     hint:'Press Next when ready',
     mode:'observe', showTerritory:false,
     setup:{ blacks:[[1,1],[1,2],[2,1],[2,2],[0,3],[0,4],[0,5],[1,5],[2,5],[2,4],[2,3],[1,3],
@@ -208,12 +208,11 @@ const LESSONS=[
     ok:'' },
 
   { part:'How a game ends', title:'Counting territory', badge:'3 / 5',
-    text:'Territory = empty points completely surrounded by your stones. After dead stones are removed, you count the empty points inside each player\'s fences.<br><br>You also count <strong>prisoners</strong> — stones captured during the game, plus the dead stones just removed. Each prisoner counts as one point against the player who lost them.<br><br><strong>Final score = territory + prisoners</strong>.<br><br>On the board shown, black has enclosed territory in the top-right and bottom areas. White has enclosed territory on the left and centre. Count the empty points inside each fence — that\'s the score.',
+    text:'Territory = empty points completely surrounded by your stones — no gaps, no way in for the opponent. On this board, black\'s stones form a fence in the top-right enclosing <strong>1 empty point</strong> (the green dot). White\'s stones form a fence in the top-left enclosing <strong>1 empty point</strong> (the blue dot).<br><br>After dead stones are removed, you count those enclosed empty points. You also add any <strong>prisoners</strong> — stones captured during the game. <strong>Final score = territory + prisoners</strong>.<br><br>The empty points in the middle and right of the board belong to nobody yet — in a real game, play would have continued until those areas were also settled.',
     hint:'Green = black territory · Blue = white territory',
     mode:'observe', showTerritory:'both',
-    setup:{ blacks:[[0,5],[0,6],[0,7],[0,8],[1,5],[2,5],[2,6],[2,7],[2,8],[1,8],
-                    [6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[7,4],[6,4],[6,1],[6,2],[6,3]],
-            whites:[[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,2],[2,3],[2,4],[3,4],[4,4],[4,3],[4,2],[4,1],[4,0],[3,0]] },
+    setup:{ blacks:[[0,6],[0,7],[0,8],[1,6],[1,8],[2,6],[2,7],[2,8]],
+            whites:[[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
     ok:'' },
 
   { part:'How a game ends', title:'Komi — white\'s compensation', badge:'4 / 5',
@@ -224,13 +223,11 @@ const LESSONS=[
     ok:'' },
 
   { part:'How a game ends', title:'A complete example', badge:'5 / 5',
-    text:'Here is a finished 9×9 game. Both players have passed. Dead stones have been removed.<br><br><strong>Black territory</strong> (top-right corner): 6 empty points.<br><strong>White territory</strong> (left side): 8 empty points.<br><strong>Prisoners:</strong> black captured 3 white stones during the game. White captured 1 black stone.<br><br><strong>Final score:</strong><br>Black: 6 territory + 3 prisoners = <strong>9 points</strong><br>White: 8 territory + 1 prisoner + 6.5 komi = <strong>15.5 points</strong><br><strong>White wins by 6.5 points.</strong><br><br>In your first games don\'t worry about close scores — just play, and let OGS count for you. The habit of building territory and capturing stones is what matters early on.<!-- PARKING LOT: upgrade this step to an interactive board where the player clicks to count territory points themselves -->',
+    text:'A finished game. Both players have passed. Dead stones removed.<br><br><strong>Black territory:</strong> the green dots — 2 enclosed empty points.<br><strong>White territory:</strong> the blue dots — 2 enclosed empty points.<br><strong>Prisoners:</strong> black captured 3 white stones during the game. White captured 1 black stone.<br><br><strong>Final score:</strong><br>Black: 2 territory + 3 prisoners = <strong>5 points</strong><br>White: 2 territory + 1 prisoner + 6.5 komi = <strong>9.5 points</strong><br><strong>White wins by 4.5 points.</strong><br><br>The large empty areas in the centre and right were never settled — in a real game, players would have continued until all areas were either claimed or agreed to be neutral. <!-- PARKING LOT: upgrade to interactive counting -->',
     hint:'Green = black territory · Blue = white territory',
     mode:'observe', showTerritory:'both',
-    setup:{ blacks:[[0,5],[0,6],[0,7],[0,8],[1,5],[1,8],[2,5],[2,6],[2,7],[2,8],
-                    [3,3],[3,4],[4,3],[4,4],[5,3],[5,4],[6,3],[6,4],[7,3],[7,4],[8,3],[8,4]],
-            whites:[[0,0],[0,1],[0,2],[0,3],[0,4],[1,0],[1,4],[2,0],[2,4],[3,0],[3,4],
-                    [4,0],[4,1],[4,2],[5,0],[5,1],[5,2],[6,0],[6,1],[6,2],[7,0],[8,0]] },
+    setup:{ blacks:[[0,6],[0,7],[0,8],[1,6],[1,8],[2,6],[2,7],[2,8],[4,0],[4,1],[4,2],[5,0],[5,2],[6,0],[6,1],[6,2]],
+            whites:[[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2],[4,4],[4,5],[4,6],[5,4],[5,6],[6,4],[6,5],[6,6]] },
     ok:'' },
 
 ];
