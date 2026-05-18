@@ -92,7 +92,7 @@
 
   <header class="app-header">
     <div class="app-logo" onclick="window.location.href='index.html'" style="cursor:pointer;" title="Back to home">碁 Go Teacher <span>How a game ends</span></div>
-    <div class="header-path">6 steps · read anytime</div>
+    <div class="header-path">7 steps · read anytime</div>
   </header>
 
   <div class="progress-section">
@@ -119,6 +119,8 @@
     <button id="btnPrev" onclick="prevLesson()" style="display:none">← Back</button>
     <button id="btnInvasionPrev" class="ko-btn" onclick="invasionPrev()" style="display:none">← Prev step</button>
     <button id="btnInvasionStep" class="ko-btn" onclick="invasionStep()" style="display:none">Next step →</button>
+    <button id="btnDeadPrev" class="ko-btn" onclick="deadPrev()" style="display:none">← Prev step</button>
+    <button id="btnDeadStep" class="ko-btn" onclick="deadStep()" style="display:none">Show next move →</button>
     <button id="btnNext" class="primary" onclick="nextLesson()">Next →</button>
   </div>
 
@@ -147,6 +149,7 @@ let canvas,ctx,CELL;
 let cur=0;
 let blacks=[],whites=[];
 let invasionIdx=0;
+let deadIdx=0;
 
 function pt(r,c){return r+','+c;}
 function fromPt(s){const[a,b]=s.split(',');return[+a,+b];}
@@ -226,6 +229,71 @@ const INVASION_STEPS=[
     counter:'Step 6 of 6' },
 ];
 
+const DEAD_STEPS=[
+  { blacks:[[0,4],[0,5],[0,6],[0,7],[0,8],
+            [1,4],[2,4],[3,4],[4,4],
+            [1,8],[2,8],[3,8],[4,8],
+            [4,5],[4,6],[4,7]],
+    whites:[[2,5],[2,6]],
+    markDead:false,
+    label:"Step 1 of 6: White has two stones inside black's territory. The game has ended — both players have passed. White's group has 5 liberties right now, so it's alive. But can it make two eyes and stay alive permanently?" },
+  { blacks:[[0,4],[0,5],[0,6],[0,7],[0,8],
+            [1,4],[2,4],[3,4],[4,4],
+            [1,8],[2,8],[3,8],[4,8],
+            [4,5],[4,6],[4,7]],
+    whites:[[2,5],[2,6],[1,6]],
+    markDead:false,
+    label:"Step 2 of 6: White plays to try to create an eye space above. Is there enough room for two separate eyes in this enclosure?" },
+  { blacks:[[0,4],[0,5],[0,6],[0,7],[0,8],
+            [1,4],[2,4],[3,4],[4,4],
+            [1,8],[2,8],[3,8],[4,8],
+            [4,5],[4,6],[4,7],[3,6]],
+    whites:[[2,5],[2,6],[1,6]],
+    markDead:false,
+    label:"Step 3 of 6: Black takes away space below. White is being squeezed from both sides. The interior is shrinking." },
+  { blacks:[[0,4],[0,5],[0,6],[0,7],[0,8],
+            [1,4],[2,4],[3,4],[4,4],
+            [1,8],[2,8],[3,8],[4,8],
+            [4,5],[4,6],[4,7],[3,6],[1,7]],
+    whites:[[2,5],[2,6],[1,6],[2,7]],
+    markDead:false,
+    label:"Step 4 of 6: White reaches for the right side, black cuts it off. No matter where white plays now, black can prevent a second eye from forming. White cannot make two eyes — this group is dead." },
+  { blacks:[[0,4],[0,5],[0,6],[0,7],[0,8],
+            [1,4],[2,4],[3,4],[4,4],
+            [1,8],[2,8],[3,8],[4,8],
+            [4,5],[4,6],[4,7],[3,6],[1,7]],
+    whites:[[2,5],[2,6],[1,6],[2,7]],
+    markDead:true,
+    label:"Step 5 of 6: Both players can see white cannot survive. Rather than play out every capture — which would only waste moves — both players agree: white's stones are dead. They are marked for removal." },
+  { blacks:[[0,4],[0,5],[0,6],[0,7],[0,8],
+            [1,4],[2,4],[3,4],[4,4],
+            [1,8],[2,8],[3,8],[4,8],
+            [4,5],[4,6],[4,7]],
+    whites:[],
+    markDead:false,
+    label:"Step 6 of 6: Dead stones are removed from the board and handed to the opponent as prisoners. They count against white's score exactly like captured stones. Black's territory is intact. This is the dead stone agreement — it saves both players from playing out the inevitable." },
+];
+
+function setupDead(){
+  const step=DEAD_STEPS[deadIdx];
+  blacks=step.blacks.map(x=>[...x]);
+  whites=step.whites.map(x=>[...x]);
+  document.getElementById('tipbox').innerHTML=step.label;
+  document.getElementById('tipbox').style.display='block';
+  document.getElementById('btnDeadPrev').disabled=deadIdx===0;
+  const atLast=deadIdx>=DEAD_STEPS.length-1;
+  document.getElementById('btnDeadStep').style.display=atLast?'none':'inline-block';
+  document.getElementById('btnNext').style.display=atLast?'inline-block':'none';
+  draw();
+}
+
+window.deadStep=function(){
+  if(deadIdx<DEAD_STEPS.length-1){deadIdx++;setupDead();}
+};
+window.deadPrev=function(){
+  if(deadIdx>0){deadIdx--;setupDead();}
+};
+
 function setupInvasion(){
   const step=INVASION_STEPS[invasionIdx];
   blacks=step.blacks.map(x=>[...x]);
@@ -246,14 +314,14 @@ window.invasionPrev=function(){
 
 const LESSONS=[
 
-  { part:'How a game ends', title:'Passing — and when the game stops', badge:'1 / 6',
+  { part:'How a game ends', title:'Passing — and when the game stops', badge:'1 / 7',
     text:'Go doesn\'t end at a fixed number of moves. It ends when <strong>both players pass consecutively</strong> — meaning neither player wants to play another stone. This happens when the board is settled: all territories are clearly defined, no profitable invasions remain, and all weak groups are either alive or dead. Either player can pass at any time. Two passes in a row: game over.<br><br>In your first games, it may not be obvious when to stop. A simple rule: if you genuinely can\'t see a move that gains you anything, pass. If your opponent also passes, you\'re done.',
     hint:'Press Next when ready',
     mode:'observe', showTerritory:false,
     setup:{ blacks:[], whites:[] },
     ok:'' },
 
-  { part:'How a game ends', title:'Dead stones — agreeing what\'s captured', badge:'2 / 6',
+  { part:'How a game ends', title:'Dead stones — agreeing what\'s captured', badge:'2 / 7',
     text:'After both players pass, you look at the board together and identify <strong>dead stones</strong> — groups that couldn\'t have survived even if the game had continued. A group is dead if it cannot make two eyes and cannot escape.<br><br>Dead stones are removed from the board and added to the opponent\'s prisoner pile — they count against you exactly like captured stones.<br><br>Both players must <strong>agree</strong> on which groups are dead. If there\'s a disagreement, play resumes until it\'s resolved. In your first games on OGS, the computer will help identify dead groups — you just confirm.<br><br><strong>Why does play stop at all?</strong> Play ends when both players agree there are no more useful moves — any stone either player placed in the opponent\'s territory would simply be captured, gaining nothing. Rather than play out those pointless captures, both players pass and agree on which groups are dead. This is a gentleman\'s agreement built into the rules of Go.',
     hint:'Press Next when ready',
     mode:'observe', showTerritory:false,
@@ -263,7 +331,13 @@ const LESSONS=[
                     [4,6],[4,7],[4,8],[5,3],[6,3],[6,8],[7,3],[7,8]] },
     ok:'' },
 
-  { part:'How a game ends', title:'Counting territory', badge:'3 / 6',
+  { part:'How a game ends', title:'What makes a group dead?', badge:'3 / 7',
+    text:'A group is dead if it cannot make two eyes — no matter what it plays, the opponent can prevent it from forming two separate enclosed spaces. Watch what happens when white tries to survive inside black\'s territory.',
+    hint:'Press "Show next move →" to step through',
+    mode:'dead_stones', showHealth:false,
+    ok:'Dead groups are removed by agreement, not by playing out every capture. Both players can see the result without wasting moves. If players disagree, play resumes until it is resolved.' },
+
+  { part:'How a game ends', title:'Counting territory', badge:'4 / 7',
     text:'Territory = empty points completely surrounded by your stones — no gaps, no way in for the opponent. On this board, black\'s stones form a fence in the top-right enclosing <strong>1 empty point</strong> (the green dot). White\'s stones form a fence in the top-left enclosing <strong>1 empty point</strong> (the blue dot).<br><br>After dead stones are removed, you count those enclosed empty points. You also add any <strong>prisoners</strong> — stones captured during the game. <strong>Final score = territory + prisoners</strong>.<br><br>The empty points in the middle and right of the board belong to nobody yet — in a real game, play would have continued until those areas were also settled.',
     hint:'Green = black territory · Blue = white territory',
     mode:'observe', showTerritory:'both',
@@ -271,14 +345,14 @@ const LESSONS=[
             whites:[[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
     ok:'' },
 
-  { part:'Why play stops', title:'Invading a secured territory', badge:'4 / 6',
+  { part:'Why play stops', title:'Invading a secured territory', badge:'5 / 7',
     text:'Once a fence is complete, the territory inside is safe. If your opponent tries to invade, you simply capture them — they can\'t escape, and they have no room to make two eyes.<br><br>Step through the animation to see what happens when white plays inside black\'s fence.',
     hint:'Use the step buttons below',
     mode:'invasion', showTerritory:false,
     setup:null,
     ok:'' },
 
-  { part:'How a game ends', title:'Komi — white\'s compensation', badge:'5 / 6',
+  { part:'How a game ends', title:'Komi — white\'s compensation', badge:'6 / 7',
     text:'Black plays first, which is a significant advantage in Go. To compensate, <strong>white receives bonus points called komi</strong> before counting begins.<br><br>On a 9×9 board, komi is typically <strong>6.5 points</strong>. The 0.5 is deliberate — it prevents draws. One player always wins by at least half a point.<br><br>So if the final count is black 18, white 12 + 6.5 komi = 18.5: white wins by half a point (as in the game shown on the board — count the green and blue dots to verify). If black has 19 and white has 12 + 6.5 = 18.5: black wins by half a point.<br><br>On OGS, komi is applied automatically — you don\'t need to calculate it yourself.',
     hint:'Green = black territory (18) · Blue = white territory (12)',
     mode:'observe', showTerritory:'both',
@@ -295,7 +369,7 @@ const LESSONS=[
     ] },
     ok:'' },
 
-  { part:'How a game ends', title:'A complete example', badge:'6 / 6',
+  { part:'How a game ends', title:'A complete example', badge:'7 / 7',
     text:'A finished game. Both players have passed. Dead stones removed.<br><br><strong>Black territory:</strong> the green dots — 2 enclosed empty points.<br><strong>White territory:</strong> the blue dots — 2 enclosed empty points.<br><strong>Prisoners:</strong> black captured 3 white stones during the game. White captured 1 black stone.<br><br><strong>Final score:</strong><br>Black: 2 territory + 3 prisoners = <strong>5 points</strong><br>White: 2 territory + 1 prisoner + 6.5 komi = <strong>9.5 points</strong><br><strong>White wins by 4.5 points.</strong><br><br>The large empty areas in the centre and right were never settled — in a real game, players would have continued until all areas were either claimed or agreed to be neutral. <!-- PARKING LOT: upgrade to interactive counting -->',
     hint:'Green = black territory · Blue = white territory',
     mode:'observe', showTerritory:'both',
@@ -334,6 +408,14 @@ function draw(){
     ctx.fillStyle='#f2f0ec';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.stroke();
   }
+  if(L.mode==='dead_stones'&&DEAD_STEPS[deadIdx].markDead){
+    for(const[r,c]of whites){
+      ctx.strokeStyle='rgba(200,40,40,0.85)';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(PAD+c*CELL-CELL*0.25,PAD+r*CELL-CELL*0.25);ctx.lineTo(PAD+c*CELL+CELL*0.25,PAD+r*CELL+CELL*0.25);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(PAD+c*CELL+CELL*0.25,PAD+r*CELL-CELL*0.25);ctx.lineTo(PAD+c*CELL-CELL*0.25,PAD+r*CELL+CELL*0.25);ctx.stroke();
+      ctx.lineWidth=0.8;
+    }
+  }
 
   // Territory overlay (after stones, on empty points only)
   const showBlackTerr=L.showTerritory==='both'||(L.mode==='invasion'&&INVASION_STEPS[invasionIdx].showTerritoryBlack);
@@ -351,16 +433,16 @@ function draw(){
     }
   }
 
-  // Step counter bar for invasion mode
-  if(L.mode==='invasion'){
-    const step=INVASION_STEPS[invasionIdx];
+  // Step counter bar for invasion / dead_stones modes
+  if(L.mode==='invasion'||L.mode==='dead_stones'){
+    const label=L.mode==='invasion'?INVASION_STEPS[invasionIdx].counter:'Step '+(deadIdx+1)+' of '+DEAD_STEPS.length;
     const barH=16,barY=canvas.height-barH;
     ctx.fillStyle='rgba(0,0,0,0.5)';
     ctx.fillRect(0,barY,canvas.width,barH);
     ctx.fillStyle='rgba(255,255,255,0.9)';
     ctx.font='bold 10px sans-serif';
     ctx.textAlign='center';
-    ctx.fillText(step.counter,canvas.width/2,barY+11);
+    ctx.fillText(label,canvas.width/2,barY+11);
     ctx.textAlign='left';
   }
 }
@@ -393,12 +475,17 @@ function applyLesson(){
   document.getElementById('btnPrev').style.display=cur>0?'inline-block':'none';
   document.getElementById('btnNext').textContent=cur<LESSONS.length-1?'Next →':'Finish →';
   const isInvasion=L.mode==='invasion';
+  const isDead=L.mode==='dead_stones';
   document.getElementById('tipbox').style.display='none';
+  document.getElementById('btnNext').style.display=isDead?'none':'inline-block';
   document.getElementById('btnInvasionPrev').style.display=isInvasion?'inline-block':'none';
   document.getElementById('btnInvasionStep').style.display=isInvasion?'inline-block':'none';
+  document.getElementById('btnDeadPrev').style.display=isDead?'inline-block':'none';
+  document.getElementById('btnDeadStep').style.display=isDead?'inline-block':'none';
   if(isInvasion){invasionIdx=0;setupInvasion();}
+  if(isDead){deadIdx=0;setupDead();}
   buildDots();
-  if(!isInvasion)draw();
+  if(!isInvasion&&!isDead)draw();
 }
 
 function showDone(){
