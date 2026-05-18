@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Teacher — Path B: Intuition-first</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --bg-card: #ffffff;
+    --bg-secondary: #f4f2ee;
+    --bg-info: #eef4ff;
+    --bg-success: #edfbf3;
+    --bg-warning: #fff8ec;
+    --bg-danger: #fff0f0;
+    --text: #1a1a18;
+    --text-secondary: #5c5b57;
+    --text-tertiary: #9c9b96;
+    --text-info: #1a5fb4;
+    --text-success: #1a7a3c;
+    --text-warning: #7a4f00;
+    --text-danger: #8b1a1a;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: 'Georgia', 'Times New Roman', serif;
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --bg-card: #242420;
+      --bg-secondary: #2c2c28;
+      --bg-info: #0d1f3c;
+      --bg-success: #0d2a1a;
+      --bg-warning: #2a1f00;
+      --bg-danger: #2a0d0d;
+      --text: #f0ede6;
+      --text-secondary: #a8a49c;
+      --text-tertiary: #6a6760;
+      --text-info: #7ab3f0;
+      --text-success: #6ecf8e;
+      --text-warning: #f0c060;
+      --text-danger: #f08080;
+      --border: rgba(255,255,255,0.1);
+      --border-strong: rgba(255,255,255,0.18);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-ui); min-height: 100vh; }
+  .app-shell { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .app-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+  .app-logo { font-family: var(--font); font-size: 18px; color: var(--text); letter-spacing: -0.3px; }
+  .app-logo span { color: var(--text-tertiary); font-weight: 400; font-size: 14px; margin-left: 8px; font-family: var(--font-ui); }
+  .header-path { font-size: 12px; color: var(--text-tertiary); background: var(--bg-secondary); padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--border); }
+  .progress-section { display: flex; flex-direction: column; gap: 8px; }
+  .progress-row { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); cursor: pointer; transition: transform 0.12s, background 0.12s; flex-shrink: 0; border: none; padding: 0; }
+  .dot:hover { transform: scale(1.5); }
+  .dot.done { background: var(--text-success); }
+  .dot.active { background: var(--text-info); transform: scale(1.35); }
+  .dot.part-div { width: 1px; height: 14px; border-radius: 0; background: var(--border); cursor: default; margin: 0 4px; }
+  .dot.part-div:hover { transform: none; }
+  .progress-label { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); }
+  .badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; font-family: var(--font-ui); }
+  .badge-part { background: var(--bg-secondary); color: var(--text-secondary); border: 0.5px solid var(--border); }
+  .badge-step { background: var(--bg-success); color: var(--text-success); }
+  .lesson-title { font-family: var(--font); font-size: 22px; color: var(--text); line-height: 1.3; letter-spacing: -0.3px; }
+  .lesson-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; font-size: 14px; color: var(--text-secondary); line-height: 1.75; font-family: var(--font-ui); }
+  .lesson-card strong { color: var(--text); font-weight: 500; }
+  .lesson-card em { font-style: italic; }
+  .lesson-card a { color: var(--text-info); text-decoration: underline; text-underline-offset: 3px; }
+  .board-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  #board { display: block; border-radius: var(--radius); box-shadow: 0 2px 12px rgba(0,0,0,0.08); max-width: 100%; cursor: pointer; }
+  .board-hint { font-size: 12px; color: var(--text-tertiary); text-align: center; font-family: var(--font-ui); }
+  .status-bar { font-size: 12px; color: var(--text-tertiary); text-align: center; font-family: var(--font-ui); min-height: 16px; }
+  .legend { display: none; gap: 12px; font-size: 12px; color: var(--text-secondary); flex-wrap: wrap; justify-content: center; font-family: var(--font-ui); }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tip-box { background: var(--bg-warning); border: 0.5px solid rgba(122,79,0,0.15); border-radius: var(--radius); padding: 0.75rem 1rem; font-size: 13px; color: var(--text-warning); line-height: 1.65; display: none; font-family: var(--font-ui); }
+  .feedback-box { border-radius: var(--radius); padding: 0.85rem 1rem; font-size: 13px; line-height: 1.65; display: none; font-family: var(--font-ui); }
+  .feedback-box.success { background: var(--bg-success); color: var(--text-success); border: 0.5px solid rgba(26,122,60,0.15); }
+  .feedback-box.info { background: var(--bg-info); color: var(--text-info); border: 0.5px solid rgba(26,95,180,0.15); }
+  .feedback-box.warn { background: var(--bg-danger); color: var(--text-danger); border: 0.5px solid rgba(139,26,26,0.15); }
+  .done-screen { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; display: none; flex-direction: column; gap: 1rem; }
+  .done-screen h2 { font-family: var(--font); font-size: 20px; color: var(--text); }
+  .done-screen p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+  .done-screen strong { color: var(--text); font-weight: 500; }
+  .done-divider { height: 0.5px; background: var(--border); }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font-size: 13px; padding: 7px 14px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); cursor: pointer; font-family: var(--font-ui); transition: background 0.1s, opacity 0.1s; white-space: nowrap; }
+  button:hover { background: var(--bg-secondary); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.primary { background: var(--bg-info); color: var(--text-info); border-color: transparent; }
+  button.primary:hover { opacity: 0.85; }
+  button.ko-btn { background: var(--bg-warning); color: var(--text-warning); border-color: transparent; }
+  button.ko-btn:hover { opacity: 0.85; }
+  .chat-area { display: flex; flex-direction: column; gap: 8px; }
+  .chat-row { display: flex; gap: 8px; }
+  .chat-row input { flex: 1; font-size: 13px; padding: 8px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); outline: none; font-family: var(--font-ui); }
+  .chat-row input:focus { border-color: var(--text-info); }
+  .chat-row input::placeholder { color: var(--text-tertiary); }
+  .chat-response { font-size: 13px; color: var(--text-secondary); line-height: 1.65; padding: 0.85rem 1rem; background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius); display: none; font-family: var(--font-ui); }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--text-info); border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 6px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .api-setup { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; display: flex; flex-direction: column; gap: 12px; }
+  .api-setup h3 { font-size: 15px; font-weight: 500; color: var(--text); font-family: var(--font-ui); }
+  .api-setup p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; font-family: var(--font-ui); }
+  .api-setup input { width: 100%; font-size: 13px; padding: 8px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--bg); color: var(--text); outline: none; font-family: monospace; }
+  .api-note { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); }
+  .app-footer { text-align: center; font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); padding-top: 1rem; border-top: 0.5px solid var(--border); }
+  @media (max-width: 480px) {
+    .app-shell { padding: 1rem 0.75rem 3rem; gap: 1rem; }
+    .lesson-title { font-size: 19px; }
+    #board { width: 300px !important; height: 300px !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app-shell" id="app-shell">
+
+  <header class="app-header">
+    <div class="app-logo" onclick="window.location.href='index.html'" style="cursor:pointer;" title="Back to paths">碁 Go Teacher <span>Path B</span></div>
+    <div class="header-path">Intuition-first · 7 steps</div>
+  </header>
+
+  <div class="progress-section">
+    <div class="progress-row" id="progress"></div>
+    <div class="progress-label" id="progress-label">Click any dot to jump to that lesson</div>
+  </div>
+
+  <div class="badges">
+    <span class="badge badge-part" id="partbadge"></span>
+    <span class="badge badge-step" id="lbadge"></span>
+  </div>
+
+  <h1 class="lesson-title" id="ltitle"></h1>
+  <div class="lesson-card" id="ltext"></div>
+  <div class="tip-box" id="tipbox"></div>
+
+  <div class="board-wrap" id="board-wrap">
+    <canvas id="board" width="320" height="320"></canvas>
+    <div class="board-hint" id="lhint"></div>
+    <div class="status-bar" id="status"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="feedback-box" id="feedback"></div>
+
+  <div class="done-screen" id="done-screen">
+    <h2>Part I complete — Board Health</h2>
+    <p>You can now read the board the way strong players do: scanning every position for weak groups before deciding where to play.</p>
+    <p><strong>What you've built:</strong> the habit of asking "which group needs attention?" — yours and your opponent's. This single question, asked every move, separates a thinking player from one who's just placing stones.</p>
+    <div class="done-divider"></div>
+    <p><strong>What comes next in Path B:</strong><br>
+    Part II: Shape — why some formations feel solid and others fragile<br>
+    Part III: Life &amp; Death — two eyes as a felt concept, then tsumego puzzles</p>
+    <div class="done-divider"></div>
+    <p>Ready to play? Go to <a href="https://online-go.com" target="_blank">online-go.com</a> — choose 9×9 and the weakest bot. After every move your opponent makes, ask: "which group just got weaker?"</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:0.5rem;">
+      <button class="primary" onclick="restartPath()">↺ Restart Part I</button>
+      <a href="index.html"><button>← Back to paths</button></a>
+    </div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button onclick="resetBoard()">Reset</button>
+    <button id="btnPrev" onclick="prevLesson()" style="display:none">← Back</button>
+    <button id="btnPhase" class="ko-btn" onclick="phaseTransition()" style="display:none">White plays →</button>
+    <button id="btnNext" class="primary" onclick="nextLesson()" style="display:none">Next →</button>
+  </div>
+
+  <div id="api-section" class="api-setup">
+    <h3>Enable the AI teacher</h3>
+    <p>The "Ask the teacher" box uses the Anthropic API. Paste your API key below — stored only in your browser, never sent anywhere except Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" />
+    <button onclick="saveApiKey()" class="primary">Save key</button>
+    <div class="api-note">Get a key at console.anthropic.com · Usage is billed to your account at standard rates</div>
+  </div>
+
+  <div class="chat-area" id="chat-area" style="display:none">
+    <div class="chat-row">
+      <input type="text" id="qinput" placeholder="Ask the teacher anything about Go…" onkeydown="if(event.key==='Enter')askTeacher()" />
+      <button onclick="askTeacher()">Ask ↗</button>
+    </div>
+    <div class="chat-response" id="qresp"></div>
+  </div>
+
+  <footer class="app-footer">
+    Go Teacher · Path B: Intuition-first · <a href="https://online-go.com" target="_blank" style="color:var(--text-tertiary);">Play on OGS</a>
+  </footer>
+</div>
+
+<script>
+const N=9,PAD=22;
+let canvas,ctx,CELL;
+let cur=0;
+let blacks=[],whites=[],hoverPt=null;
+let scenarioDone=false,currentScenario=null,answerShown=false,scenarioBlacks=[],scenarioWhites=[];
+let tapRound=0,tapFound=new Set(),tapAllDone=false,tapInvalidPt=null;
+let healthClickDone=false,twoPhaseStage=0,flashPt=null;
+
+// ── Board engine (shared with Path A) ──────────────────────────────────────
+function pt(r,c){return r+','+c;}
+function fromPt(s){const[a,b]=s.split(',');return[+a,+b];}
+function has(arr,r,c){return arr.some(s=>s[0]===r&&s[1]===c);}
+function adj(r,c){return[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].filter(([a,b])=>a>=0&&a<N&&b>=0&&b<N);}
+function getGroup(arr,r,c){const vis=new Set([pt(r,c)]),q=[[r,c]];while(q.length){const[cr,cc]=q.shift();for(const[nr,nc]of adj(cr,cc))if(has(arr,nr,nc)&&!vis.has(pt(nr,nc))){vis.add(pt(nr,nc));q.push([nr,nc]);}}return[...vis].map(fromPt);}
+function getLibs(group){const s=new Set();for(const[r,c]of group)for(const[nr,nc]of adj(r,c))if(!has(blacks,nr,nc)&&!has(whites,nr,nc))s.add(pt(nr,nc));return[...s].map(fromPt);}
+function doCaptures(){for(const col of['white','black']){const arr=col==='white'?whites:blacks,gone=new Set();for(const[r,c]of arr)if(!gone.has(pt(r,c))){const g=getGroup(arr,r,c);if(getLibs(g).length===0)g.forEach(s=>gone.add(pt(s[0],s[1])));}if(gone.size){if(col==='white')whites=whites.filter(s=>!gone.has(pt(s[0],s[1])));else blacks=blacks.filter(s=>!gone.has(pt(s[0],s[1])));}}}
+function snap(x,y){const c=Math.round((x-PAD)/CELL),r=Math.round((y-PAD)/CELL);if(c<0||c>=N||r<0||r>=N)return null;if(Math.abs(x-(PAD+c*CELL))>CELL*0.46||Math.abs(y-(PAD+r*CELL))>CELL*0.46)return null;return[r,c];}
+
+// ── Path B helpers ─────────────────────────────────────────────────────────
+function getGroupLibCount(){
+  if(blacks.length===0)return 0;
+  const[r,c]=blacks[0];
+  return getLibs(getGroup(blacks,r,c)).length;
+}
+
+function drawHealthOverlay(){
+  const visB=new Set();
+  for(const[r,c]of blacks){
+    if(visB.has(pt(r,c)))continue;
+    const g=getGroup(blacks,r,c);
+    g.forEach(s=>visB.add(pt(s[0],s[1])));
+    const libs=getLibs(g).length;
+    const color=libs<=2?'rgba(220,60,60,0.35)':libs<=4?'rgba(255,160,0,0.3)':'rgba(60,180,80,0.28)';
+    for(const[gr,gc]of g){
+      ctx.fillStyle=color;ctx.beginPath();ctx.arc(PAD+gc*CELL,PAD+gr*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    }
+  }
+  const visW=new Set();
+  for(const[r,c]of whites){
+    if(visW.has(pt(r,c)))continue;
+    const g=getGroup(whites,r,c);
+    g.forEach(s=>visW.add(pt(s[0],s[1])));
+    const libs=getLibs(g).length;
+    const color=libs<=2?'rgba(220,60,60,0.28)':libs<=4?'rgba(255,160,0,0.22)':'rgba(60,180,80,0.2)';
+    for(const[gr,gc]of g){
+      ctx.fillStyle=color;ctx.beginPath();ctx.arc(PAD+gc*CELL,PAD+gr*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+function showFeedback(msg,type){
+  const fb=document.getElementById('feedback');
+  fb.innerHTML=msg;fb.className='feedback-box '+type;fb.style.display='block';
+}
+
+// ── Lessons ────────────────────────────────────────────────────────────────
+const LESSONS=[
+
+  { part:'Part I: Board Health', title:'Two Kinds of Stones', badge:'1 / 7',
+    text:'Not all stones are equal. Some groups are healthy — plenty of breathing room, hard to attack. Others are nervous — few liberties, easy targets. The colour overlay shows you at a glance: <strong style="color:#1a7a3c">green</strong> = healthy, <strong style="color:#7a4f00">amber</strong> = watch this, <strong style="color:#8b1a1a">red</strong> = urgent. Before thinking about where to play, ask: <strong>which of my stones needs attention?</strong>',
+    hint:'Read the board — which group looks nervous?',
+    mode:'observe', showHealth:true,
+    setup:{ blacks:[[1,1],[1,2],[2,1],[2,2],[6,6]], whites:[[5,6],[7,6],[6,5]] },
+    check:()=>true, status:()=>'',
+    ok:'This habit — scanning for weak groups before deciding your move — is the foundation of strategic thinking in Go.' },
+
+  { part:'Part I: Board Health', title:'Your Own Stones Limit Your Own Liberties', badge:'2 / 7',
+    text:'Place a black stone touching the one already on the board. Watch the liberty count update. Your own stones block each other\'s liberties — the shared side between two touching stones counts for neither. This is why <strong>how</strong> you connect stones matters, not just whether you connect them.',
+    hint:'Place a black stone touching the centre stone and watch the liberty count',
+    mode:'place_watch', showHealth:true,
+    setup:{ blacks:[[4,4]], whites:[] },
+    check:()=>blacks.length>=2&&blacks.some(([r,c])=>adj(4,4).some(([nr,nc])=>nr===r&&nc===c)),
+    status:()=>'Group liberties: '+getGroupLibCount(),
+    ok:'Two touching stones share 6 liberties — not 8 — because the shared side blocks both. Crowding your own group wastes liberties.' },
+
+  { part:'Part I: Board Health', title:'Counting Liberties Quickly', badge:'3 / 7',
+    text:'Tap every empty point directly adjacent to the black group to count its liberties. Up, down, left, right only — not diagonals. Work through all three positions.',
+    hint:'Tap each open adjacent point — find them all to continue',
+    mode:'tap_liberties', showHealth:false,
+    rounds:[
+      { blacks:[[0,4]], whites:[], answer:[[0,3],[0,5],[1,4]],
+        label:'Round 1 of 3: A single stone on the top edge. How many liberties does it have?' },
+      { blacks:[[3,3],[3,4],[4,3]], whites:[], answer:[[2,3],[2,4],[3,2],[3,5],[4,2],[4,4],[5,3]],
+        label:'Round 2 of 3: A connected group of three. Count all their shared liberties.' },
+      { blacks:[[5,5],[5,6],[6,5]], whites:[[4,5],[4,6],[6,6],[7,5]], answer:[[5,4],[5,7],[6,4]],
+        label:'Round 3 of 3: A group under pressure from white. How many liberties remain?' },
+    ],
+    check:()=>tapAllDone, status:()=>'',
+    ok:'Fast liberty-counting develops with practice. You don\'t need to count every move — but always know roughly which groups are in danger.' },
+
+  { part:'Part I: Board Health', title:'When Does a Threat Matter?', badge:'4 / 7',
+    text:'Not every stone in danger needs saving. A single stone with few strategic connections may be worth sacrificing. A large group in atari is a crisis. Click on the black group you think needs <strong>urgent</strong> attention right now.',
+    hint:'Click on any stone in the group that is most at risk',
+    mode:'health_click', showHealth:true,
+    setup:{ blacks:[[1,1],[4,4],[4,5],[5,4],[5,5]], whites:[[3,4],[3,5],[4,3],[4,6],[6,4],[6,5],[5,6]] },
+    groups:[
+      { stones:[[4,4],[4,5],[5,4],[5,5]], quality:'perfect',
+        msg:'✓ Correct — this group has only 1 liberty. White captures it next move unless black acts immediately.' },
+      { stones:[[1,1]], quality:'wrong',
+        msg:'✗ This stone has 4 liberties and no white nearby — it can wait. The cluster in the centre is the emergency.' },
+    ],
+    check:()=>healthClickDone, status:()=>'',
+    ok:'Ask not just "is this stone in atari?" but "is this stone worth saving?" Urgency is always relative.' },
+
+  { part:'Part I: Board Health', title:'Strong and Weak — The Whole Board', badge:'5 / 7',
+    text:'At any point in the game, every group is either strong (settled, safe, can be ignored) or weak (vulnerable, needs attention — yours to fix or your opponent\'s to attack). Click on the black group in the most danger.',
+    hint:'Click on the weakest black group on the board',
+    mode:'health_click', showHealth:true,
+    setup:{
+      blacks:[[0,0],[0,1],[1,0],[4,6],[4,7],[3,7],[7,3]],
+      whites:[[2,0],[2,1],[1,1],[3,6],[5,6],[4,5],[6,3],[7,4],[8,3]]
+    },
+    groups:[
+      { stones:[[0,0],[0,1],[1,0]], quality:'perfect',
+        msg:'✓ Correct — this group is pushed into the corner with only 1 liberty. It\'s in serious trouble.' },
+      { stones:[[7,3]], quality:'perfect',
+        msg:'✓ Also correct — this stone has only 1 liberty too. Either of these is an emergency.' },
+      { stones:[[4,6],[4,7],[3,7]], quality:'wrong',
+        msg:'✗ This group has 4 liberties — it can wait. Look for the groups with the red overlay.' },
+    ],
+    check:()=>healthClickDone, status:()=>'',
+    ok:'When you can spot the weakest group at a glance, you\'re starting to read the board rather than just place stones.' },
+
+  { part:'Part I: Board Health', title:"Don't Fix What Isn't Broken", badge:'6 / 7',
+    text:'Black has a strong group in the top-left and a weak isolated stone in trouble. White has just played. Where do you play?',
+    hint:'Click where you would play black',
+    mode:'scenario', showHealth:true,
+    setup:{
+      blacks:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[6,6]],
+      whites:[[5,6],[6,5],[7,6]]
+    },
+    threatArrow:null, libertyMarker:[6,7],
+    question:"Black has a strong group in the top-left (green — 7 liberties) and a weak isolated stone (red — 1 liberty). White has just played. Where do you play?",
+    zones:[
+      { label:'Correct — save the weak stone', color:'rgba(60,180,80,0.25)',
+        test:(r,c,sb,sw)=>r>=5&&r<=7&&c>=6&&c<=8&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),
+        msg:'✓ Correct — the weak stone needs help immediately. The strong group in the corner can look after itself.' },
+      { label:'Wrong — reinforcing safe group', color:'rgba(220,80,40,0.18)',
+        test:(r,c,sb,sw)=>r<=3&&c<=3&&!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),
+        msg:'✗ That group already has 7 liberties and is perfectly safe. Adding to it wastes a move while your weak stone is about to be captured.' },
+      { label:'Elsewhere', color:'rgba(255,200,0,0.2)',
+        test:(r,c,sb,sw)=>!sb.some(s=>s[0]===r&&s[1]===c)&&!sw.some(s=>s[0]===r&&s[1]===c),
+        msg:'— There may be bigger moves eventually, but right now a group is about to be captured. Fix the emergency first.' },
+    ],
+    check:()=>scenarioDone, status:()=>scenarioDone?'Click made — press Next to continue':'Click where you would play black',
+    ok:'A move spent reinforcing a safe group is almost always a wasted move. Strong groups can wait. Weak groups cannot.' },
+
+  { part:'Part I: Board Health', title:"What Changed?", badge:'7 / 7',
+    text:'White is about to play. Look at the board carefully — note which black groups look healthy and which look nervous. Then press <strong>White plays →</strong> to see the move, and click on the black group that just became more dangerous.',
+    hint:'Study the board, then press "White plays →"',
+    mode:'two_phase', showHealth:true,
+    phase1:{
+      blacks:[[4,4],[4,5],[5,4],[5,5],[1,1]],
+      whites:[[3,4],[3,5],[4,3],[5,3],[6,4]],
+      buttonLabel:'White plays →'
+    },
+    phase2:{
+      blacks:[[4,4],[4,5],[5,4],[5,5],[1,1]],
+      whites:[[3,4],[3,5],[4,3],[5,3],[6,4],[5,6]],
+    },
+    groups:[
+      { stones:[[4,4],[4,5],[5,4],[5,5]], quality:'perfect',
+        msg:'✓ Correct — white\'s move took away one of this group\'s liberties. It went from amber (3 liberties) to red (2 liberties). This group just became urgent.' },
+      { stones:[[1,1]], quality:'wrong',
+        msg:'✗ This stone is unchanged — white\'s move didn\'t affect it. Look for the group whose colour just shifted.' },
+    ],
+    check:()=>healthClickDone, status:()=>'',
+    ok:'Every move changes something. The habit of asking "what just changed?" is what separates a thinking player from one who\'s just placing stones.' },
+
+];
+
+// ── shouldShowNext ─────────────────────────────────────────────────────────
+function shouldShowNext(){
+  const L=LESSONS[cur];
+  if(L.mode==='done')return true;
+  if(L.mode==='observe')return true;
+  if(L.mode==='place_watch')return L.check();
+  if(L.mode==='tap_liberties')return tapAllDone;
+  if(L.mode==='health_click')return healthClickDone;
+  if(L.mode==='scenario')return scenarioDone;
+  if(L.mode==='two_phase')return healthClickDone;
+  return false;
+}
+
+// ── refreshUI ──────────────────────────────────────────────────────────────
+function refreshUI(){
+  const L=LESSONS[cur];
+  document.getElementById('partbadge').textContent=L.part;
+  document.getElementById('lbadge').textContent='Step '+L.badge;
+  document.getElementById('ltitle').textContent=L.title;
+
+  const isDone=L.mode==='done';
+  document.getElementById('board-wrap').style.display=isDone?'none':'flex';
+  document.getElementById('controls').style.display=isDone?'none':'flex';
+  document.getElementById('done-screen').style.display=isDone?'flex':'none';
+
+  const btnNext=document.getElementById('btnNext');
+  if(!isDone&&shouldShowNext()){
+    btnNext.style.display='inline-block';
+    btnNext.textContent=cur===LESSONS.length-1?'Finish →':'Next →';
+  } else {
+    btnNext.style.display='none';
+  }
+
+  document.getElementById('btnPrev').style.display=(cur>0&&!isDone)?'inline-block':'none';
+  document.getElementById('btnPhase').style.display=(L.mode==='two_phase'&&twoPhaseStage===0)?'inline-block':'none';
+  if(L.mode==='two_phase'&&L.phase1)document.getElementById('btnPhase').textContent=L.phase1.buttonLabel||'White plays →';
+
+  // Status bar
+  const statusEl=document.getElementById('status');
+  if(L.mode==='place_watch'&&typeof L.status==='function'){
+    statusEl.textContent=L.status();
+  } else if(L.mode==='tap_liberties'&&!tapAllDone){
+    const rd=L.rounds[tapRound];
+    statusEl.textContent='Round '+(tapRound+1)+' of '+L.rounds.length+': '+tapFound.size+' / '+rd.answer.length+' found';
+  } else if(L.mode==='two_phase'&&twoPhaseStage===1&&!healthClickDone){
+    statusEl.textContent='White has played — click the black group that just became most dangerous';
+  } else if(typeof L.status==='function'){
+    statusEl.textContent=L.status();
+  } else {
+    statusEl.textContent='';
+  }
+
+  // Show ok feedback when lesson is complete (non-interactive modes)
+  const fb=document.getElementById('feedback');
+  if(shouldShowNext()&&L.ok&&L.mode!=='scenario'&&L.mode!=='health_click'&&L.mode!=='two_phase'&&fb.style.display==='none'){
+    fb.textContent=L.ok;fb.className='feedback-box success';fb.style.display='block';
+  }
+
+  // Legend
+  const leg=document.getElementById('legend');
+  if(L.showHealth){
+    leg.style.display='flex';
+    leg.innerHTML='<span><i style="background:rgba(60,180,80,0.75)"></i>Healthy (5+)</span><span><i style="background:rgba(255,160,0,0.75)"></i>Watch (3–4)</span><span><i style="background:rgba(220,60,60,0.75)"></i>Urgent (1–2)</span>';
+  } else {
+    leg.style.display='none';
+  }
+
+  try{localStorage.setItem('go-teacher-b-progress',cur);}catch(e){}
+}
+
+// ── draw ───────────────────────────────────────────────────────────────────
+function drawArrow(r1,c1,r2,c2,color){
+  const x1=PAD+c1*CELL,y1=PAD+r1*CELL,x2=PAD+c2*CELL,y2=PAD+r2*CELL;
+  const ang=Math.atan2(y2-y1,x2-x1),hl=10;
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-hl*Math.cos(ang-0.4),y2-hl*Math.sin(ang-0.4));
+  ctx.lineTo(x2-hl*Math.cos(ang+0.4),y2-hl*Math.sin(ang+0.4));
+  ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=0.8;
+}
+
+function draw(){
+  const L=LESSONS[cur];
+  const W=canvas.width;
+  ctx.clearRect(0,0,W,W);
+
+  // Board background
+  ctx.fillStyle='#DCB97A';ctx.fillRect(0,0,W,W);
+
+  // Health overlay (drawn before stones so stones appear on top)
+  if(L.showHealth)drawHealthOverlay();
+
+  // Grid
+  ctx.strokeStyle='#8B6914';ctx.lineWidth=0.8;
+  for(let i=0;i<N;i++){
+    ctx.beginPath();ctx.moveTo(PAD+i*CELL,PAD);ctx.lineTo(PAD+i*CELL,PAD+(N-1)*CELL);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD,PAD+i*CELL);ctx.lineTo(PAD+(N-1)*CELL,PAD+i*CELL);ctx.stroke();
+  }
+  ctx.fillStyle='#8B6914';
+  for(const[r,c]of[[2,2],[2,6],[6,2],[6,6],[4,4]]){ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,3,0,Math.PI*2);ctx.fill();}
+
+  // Scenario zones
+  if(L.mode==='scenario'&&currentScenario){
+    for(const z of currentScenario.zones){
+      for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+        if(z.test(r,c,scenarioBlacks,scenarioWhites)){
+          ctx.fillStyle=z.color;ctx.fillRect(PAD+c*CELL-CELL/2+1,PAD+r*CELL-CELL/2+1,CELL-2,CELL-2);
+        }
+      }
+    }
+    if(currentScenario.threatArrow){
+      const{from,to}=currentScenario.threatArrow;drawArrow(from[0],from[1],to[0],to[1],'rgba(200,50,50,0.65)');
+    }
+    if(currentScenario.libertyMarker){
+      const[lr,lc]=currentScenario.libertyMarker;
+      ctx.fillStyle='rgba(255,140,0,0.75)';ctx.beginPath();ctx.arc(PAD+lc*CELL,PAD+lr*CELL,CELL*0.3,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(200,100,0,0.9)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(PAD+lc*CELL,PAD+lr*CELL,CELL*0.3,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+  }
+
+  // Tap liberties: found taps in blue, invalid flash in red
+  if(L.mode==='tap_liberties'){
+    for(const k of tapFound){
+      const[r,c]=fromPt(k);
+      ctx.fillStyle='rgba(74,142,212,0.65)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(40,100,180,0.8)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+    }
+    if(tapInvalidPt){
+      const[r,c]=tapInvalidPt;
+      ctx.fillStyle='rgba(220,60,60,0.5)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.28,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  // Stones
+  for(const[r,c]of blacks){
+    ctx.fillStyle='#111';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+  }
+  for(const[r,c]of whites){
+    ctx.fillStyle='#f2f0ec';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.stroke();
+  }
+
+  // Flash circle for two_phase transition
+  if(flashPt){
+    const[fr,fc]=flashPt;
+    ctx.strokeStyle='rgba(255,180,0,0.95)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(PAD+fc*CELL,PAD+fr*CELL,CELL*0.52,0,Math.PI*2);ctx.stroke();ctx.lineWidth=0.8;
+  }
+
+  // Hover ghost (place_watch only)
+  if(hoverPt&&L.mode==='place_watch'){
+    const[hr,hc]=hoverPt;
+    if(!has(blacks,hr,hc)&&!has(whites,hr,hc)){
+      ctx.fillStyle='rgba(0,0,0,0.2)';ctx.beginPath();ctx.arc(PAD+hc*CELL,PAD+hr*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+// ── Tap liberties ──────────────────────────────────────────────────────────
+function loadTapRound(){
+  const L=LESSONS[cur];
+  const round=L.rounds[tapRound];
+  blacks=round.blacks.map(x=>[...x]);
+  whites=round.whites.map(x=>[...x]);
+  document.getElementById('tipbox').textContent=round.label;
+  document.getElementById('tipbox').style.display='block';
+  tapFound=new Set();
+}
+
+// ── Health click grading ───────────────────────────────────────────────────
+function gradeHealthClick(r,c){
+  const L=LESSONS[cur];
+  let matched=false;
+  for(const grp of L.groups){
+    if(grp.stones.some(([sr,sc])=>sr===r&&sc===c)){
+      showFeedback(grp.msg,grp.quality==='perfect'?'success':'warn');
+      matched=true;break;
+    }
+  }
+  if(!matched)showFeedback('Click on one of the black stones on the board to evaluate that group.','info');
+  healthClickDone=true;
+  if(matched&&LESSONS[cur].ok){
+    // ok text shows after a short delay via refreshUI's check
+  }
+  refreshUI();
+}
+
+// ── Scenario grading ───────────────────────────────────────────────────────
+function gradeMove(r,c){
+  const sb=scenarioBlacks,sw=scenarioWhites;
+  let matched=false;
+  for(const z of currentScenario.zones){
+    if(z.test(r,c,sb,sw)){
+      const good=z.label.startsWith('Correct')||z.label.startsWith('Perfect');
+      const mid=z.label==='Elsewhere'||z.label.startsWith('Good');
+      showFeedback(z.label+': '+z.msg,good?'success':mid?'info':'warn');
+      matched=true;break;
+    }
+  }
+  if(!matched)showFeedback("That spot isn't in a graded zone — try clicking somewhere else.",'info');
+  scenarioDone=true;
+  buildDots();refreshUI();
+}
+
+// ── Phase transition ───────────────────────────────────────────────────────
+window.phaseTransition=function(){
+  const L=LESSONS[cur];
+  twoPhaseStage=1;
+  const p1=L.phase1,p2=L.phase2;
+  const newW=p2.whites.find(([r,c])=>!p1.whites.some(([r2,c2])=>r2===r&&c2===c));
+  blacks=p2.blacks.map(x=>[...x]);
+  whites=p2.whites.map(x=>[...x]);
+  flashPt=newW||null;
+  document.getElementById('lhint').textContent='White has played — click the black group that just became most dangerous';
+  draw();
+  if(flashPt)setTimeout(()=>{flashPt=null;draw();},800);
+  refreshUI();
+};
+
+// ── onClick ────────────────────────────────────────────────────────────────
+function onClick(e){
+  const L=LESSONS[cur];
+  if(L.mode==='done'||L.mode==='observe')return;
+
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;
+  const p=snap((e.clientX-rect.left)*scaleX,(e.clientY-rect.top)*scaleY);
+  if(!p)return;
+  const[r,c]=p;
+
+  if(L.mode==='place_watch'){
+    if(has(blacks,r,c)||has(whites,r,c))return;
+    blacks.push([r,c]);
+    draw();refreshUI();
+    return;
+  }
+
+  if(L.mode==='tap_liberties'){
+    if(tapAllDone)return;
+    const round=L.rounds[tapRound];
+    const key=pt(r,c);
+    if(round.answer.some(([ar,ac])=>ar===r&&ac===c)){
+      if(tapFound.has(key))return;
+      tapFound.add(key);
+      draw();
+      if(tapFound.size===round.answer.length){
+        showFeedback('✓ Found all '+round.answer.length+' liberties!','success');
+        if(tapRound<L.rounds.length-1){
+          setTimeout(()=>{
+            tapRound++;
+            document.getElementById('feedback').style.display='none';
+            loadTapRound();
+            draw();refreshUI();
+          },1000);
+        } else {
+          tapAllDone=true;
+          refreshUI();
+        }
+      } else {
+        refreshUI();
+      }
+    } else if(!has(blacks,r,c)&&!has(whites,r,c)){
+      tapInvalidPt=[r,c];
+      draw();
+      setTimeout(()=>{tapInvalidPt=null;draw();},400);
+    }
+    return;
+  }
+
+  if(L.mode==='health_click'){
+    if(healthClickDone)return;
+    if(!has(blacks,r,c))return;
+    gradeHealthClick(r,c);
+    return;
+  }
+
+  if(L.mode==='two_phase'){
+    if(twoPhaseStage===0)return;
+    if(healthClickDone)return;
+    if(!has(blacks,r,c))return;
+    gradeHealthClick(r,c);
+    return;
+  }
+
+  if(L.mode==='scenario'){
+    if(scenarioDone)return;
+    if(has(blacks,r,c)||has(whites,r,c))return;
+    scenarioBlacks=blacks.map(s=>[...s]);
+    scenarioWhites=whites.map(s=>[...s]);
+    blacks.push([r,c]);
+    gradeMove(r,c);
+    draw();return;
+  }
+}
+
+function onMove(e){
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;
+  hoverPt=snap((e.clientX-rect.left)*scaleX,(e.clientY-rect.top)*scaleY);
+  draw();
+}
+
+let _hoverClearTimer=null;
+function onTouch(e){
+  e.preventDefault();
+  const t=e.changedTouches[0];
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;
+  const p=snap((t.clientX-rect.left)*scaleX,(t.clientY-rect.top)*scaleY);
+  if(!p)return;
+  const[r,c]=p;
+  if(has(blacks,r,c)&&LESSONS[cur].showHealth){
+    hoverPt=[r,c];draw();
+    clearTimeout(_hoverClearTimer);
+    _hoverClearTimer=setTimeout(()=>{hoverPt=null;draw();},1500);
+    return;
+  }
+  hoverPt=null;
+  onClick({clientX:t.clientX,clientY:t.clientY});
+}
+
+// ── applyLesson ────────────────────────────────────────────────────────────
+function applyLesson(){
+  const L=LESSONS[cur];
+  if(L.mode!=='scenario'){
+    document.getElementById('ltext').innerHTML=L.text||'';
+  }
+  document.getElementById('lhint').textContent=L.hint||'';
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('qresp').style.display='none';
+  document.getElementById('tipbox').style.display='none';
+
+  blacks=[];whites=[];hoverPt=null;
+  scenarioDone=false;currentScenario=null;answerShown=false;
+  scenarioBlacks=[];scenarioWhites=[];
+  tapRound=0;tapFound=new Set();tapAllDone=false;tapInvalidPt=null;
+  healthClickDone=false;twoPhaseStage=0;flashPt=null;
+
+  if(L.mode==='observe'||L.mode==='place_watch'||L.mode==='health_click'){
+    blacks=L.setup.blacks.map(x=>[...x]);
+    whites=L.setup.whites.map(x=>[...x]);
+  }
+  if(L.mode==='scenario'){
+    blacks=L.setup.blacks.map(x=>[...x]);
+    whites=L.setup.whites.map(x=>[...x]);
+    scenarioBlacks=blacks.map(x=>[...x]);
+    scenarioWhites=whites.map(x=>[...x]);
+    currentScenario=L;
+    document.getElementById('ltext').innerHTML='<strong>'+L.title+'</strong><br><br>'+L.question;
+    document.getElementById('lhint').textContent='Click where you would play black';
+  }
+  if(L.mode==='tap_liberties')loadTapRound();
+  if(L.mode==='two_phase'){
+    blacks=L.phase1.blacks.map(x=>[...x]);
+    whites=L.phase1.whites.map(x=>[...x]);
+  }
+
+  buildDots();refreshUI();draw();
+  try{document.getElementById('board').scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}
+}
+
+// ── buildDots ──────────────────────────────────────────────────────────────
+function buildDots(){
+  const p=document.getElementById('progress');p.innerHTML='';
+  let lastPart='';
+  LESSONS.forEach((L,i)=>{
+    if(L.part!==lastPart&&lastPart!==''){
+      const d=document.createElement('button');d.className='dot part-div';d.disabled=true;p.appendChild(d);
+    }
+    lastPart=L.part;
+    const d=document.createElement('button');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.title=L.title;
+    d.setAttribute('aria-label','Jump to: '+L.title);
+    d.addEventListener('click',()=>{cur=i;applyLesson();});
+    p.appendChild(d);
+  });
+  document.getElementById('progress-label').textContent=
+    cur<LESSONS.length-1?'Step '+(cur+1)+' of '+LESSONS.length+' · click any dot to jump':'All steps complete · click any dot to revisit';
+}
+
+// ── Controls ───────────────────────────────────────────────────────────────
+window.resetBoard=function(){
+  const L=LESSONS[cur];
+  blacks=[];whites=[];hoverPt=null;
+  scenarioDone=false;answerShown=false;scenarioBlacks=[];scenarioWhites=[];
+  tapRound=0;tapFound=new Set();tapAllDone=false;tapInvalidPt=null;
+  healthClickDone=false;twoPhaseStage=0;flashPt=null;
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('tipbox').style.display='none';
+  if(L.mode==='observe'||L.mode==='place_watch'||L.mode==='health_click'){
+    blacks=L.setup.blacks.map(x=>[...x]);
+    whites=L.setup.whites.map(x=>[...x]);
+  }
+  if(L.mode==='scenario'){
+    blacks=L.setup.blacks.map(x=>[...x]);
+    whites=L.setup.whites.map(x=>[...x]);
+    scenarioBlacks=blacks.map(x=>[...x]);
+    scenarioWhites=whites.map(x=>[...x]);
+    currentScenario=L;
+  }
+  if(L.mode==='tap_liberties')loadTapRound();
+  if(L.mode==='two_phase'){
+    blacks=L.phase1.blacks.map(x=>[...x]);
+    whites=L.phase1.whites.map(x=>[...x]);
+    document.getElementById('lhint').textContent=L.hint||'';
+  }
+  refreshUI();draw();
+};
+
+window.nextLesson=function(){
+  if(cur<LESSONS.length-1){cur++;applyLesson();}
+  else{cur=0;applyLesson();}
+};
+window.prevLesson=function(){if(cur>0){cur--;applyLesson();}};
+window.restartPath=function(){cur=0;applyLesson();};
+
+// ── API key ────────────────────────────────────────────────────────────────
+function saveApiKey(){
+  const key=document.getElementById('apiKeyInput').value.trim();
+  if(!key.startsWith('sk-ant-')){alert('That doesn\'t look like an Anthropic API key — it should start with sk-ant-');return;}
+  try{localStorage.setItem('go-teacher-api-key',key);}catch(e){}
+  document.getElementById('api-section').style.display='none';
+  document.getElementById('chat-area').style.display='flex';
+  alert('Key saved! The Ask the teacher feature is now active.');
+}
+
+window.askTeacher=async function(){
+  const inp=document.getElementById('qinput'),resp=document.getElementById('qresp');
+  const q=inp.value.trim();if(!q)return;
+  let apiKey='';try{apiKey=localStorage.getItem('go-teacher-api-key')||'';}catch(e){}
+  if(!apiKey){resp.textContent='Please add your Anthropic API key above.';resp.style.display='block';return;}
+  inp.value='';
+  resp.innerHTML='<span class="spinner"></span>Thinking…';resp.style.display='block';
+  const L=LESSONS[cur];
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-iab':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'You are a patient, warm Go teacher. The student is on Path B (Intuition-first), step '+(cur+1)+' of '+LESSONS.length+': "'+L.title+'". Keep answers to 2-4 sentences, concrete and encouraging. No jargon without explanation.',
+        messages:[{role:'user',content:q}]})});
+    if(!r.ok){resp.textContent='API error ('+r.status+'). Check your key is valid and has credit.';return;}
+    const d=await r.json();
+    resp.textContent=d.content?.map(b=>b.text||'').join('')||'No response.';
+  }catch(e){resp.textContent='Could not reach Anthropic. Check your internet connection.';}
+};
+
+// ── Init ───────────────────────────────────────────────────────────────────
+canvas=document.getElementById('board');
+ctx=canvas.getContext('2d');
+CELL=(320-PAD*2)/(N-1);
+canvas.addEventListener('click',onClick);
+canvas.addEventListener('mousemove',onMove);
+canvas.addEventListener('mouseleave',()=>{hoverPt=null;draw();});
+canvas.addEventListener('touchstart',onTouch,{passive:false});
+canvas.addEventListener('touchend',()=>{clearTimeout(_hoverClearTimer);_hoverClearTimer=setTimeout(()=>{hoverPt=null;draw();},1500);});
+
+try{
+  const savedKey=localStorage.getItem('go-teacher-api-key');
+  if(savedKey&&savedKey.startsWith('sk-ant-')){
+    document.getElementById('api-section').style.display='none';
+    document.getElementById('chat-area').style.display='flex';
+  }
+  const savedCur=parseInt(localStorage.getItem('go-teacher-b-progress')||'0');
+  if(savedCur>0&&savedCur<LESSONS.length)cur=savedCur;
+}catch(e){}
+
+applyLesson();
+</script>
+</body>
+</html>

@@ -175,11 +175,10 @@
     </div>
 
     <!-- Path B -->
-    <div style="background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;opacity:0.7;">
+    <div onclick="window.location.href='path-b.html'" style="background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;cursor:pointer;">
       <div style="display:flex;flex-direction:column;gap:6px;">
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--bg-success);color:var(--text-success);width:fit-content;">Intuition-first</span>
-          <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--bg-warning);color:var(--text-warning);width:fit-content;">Coming soon</span>
         </div>
         <div style="font-size:17px;font-weight:500;color:var(--text);">What am I even looking at?</div>
         <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Learn to read the board before memorising rules. Start by asking "which stones look healthy?" — the same question strong players ask every move.</div>
@@ -190,8 +189,8 @@
         <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-success);color:var(--text-success);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">III</span><span><strong style="color:var(--text);font-weight:500;">Life &amp; death</strong> — two eyes as a felt concept, then tsumego</span></div>
       </div>
       <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
-        <div style="font-size:12px;color:var(--text-tertiary);">In development · 60+ steps planned</div>
-        <div style="font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius);background:var(--bg-secondary);color:var(--text-tertiary);text-align:center;cursor:default;">Coming soon</div>
+        <div style="font-size:12px;color:var(--text-tertiary);">7 steps · Part I: Board Health</div>
+        <div style="font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius);background:var(--bg-success);color:var(--text-success);text-align:center;cursor:pointer;">Start Path B →</div>
       </div>
     </div>
 
@@ -209,7 +208,7 @@
 
   <div id="landing-resume" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
     <button onclick="startPath('A')" style="font-size:13px;padding:7px 14px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--bg-card);color:var(--text);cursor:pointer;font-family:var(--font-ui);">→ Resume Path A</button>
-    <button disabled style="font-size:13px;padding:7px 14px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--bg-card);color:var(--text-tertiary);cursor:default;font-family:var(--font-ui);opacity:0.4;">→ Resume Path B</button>
+    <button onclick="window.location.href='path-b.html'" style="font-size:13px;padding:7px 14px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--bg-card);color:var(--text);cursor:pointer;font-family:var(--font-ui);">→ Resume Path B</button>
   </div>
 
   <div style="font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:8px;">
