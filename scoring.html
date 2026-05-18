@@ -322,13 +322,19 @@ const LESSONS=[
     ok:'' },
 
   { part:'How a game ends', title:'Dead stones — agreeing what\'s captured', badge:'2 / 7',
-    text:'After both players pass, you look at the board together and identify <strong>dead stones</strong> — groups that couldn\'t have survived even if the game had continued. A group is dead if it cannot make two eyes and cannot escape.<br><br>Dead stones are removed from the board and added to the opponent\'s prisoner pile — they count against you exactly like captured stones.<br><br>Both players must <strong>agree</strong> on which groups are dead. If there\'s a disagreement, play resumes until it\'s resolved. In your first games on OGS, the computer will help identify dead groups — you just confirm.<br><br><strong>Why does play stop at all?</strong> Play ends when both players agree there are no more useful moves — any stone either player placed in the opponent\'s territory would simply be captured, gaining nothing. Rather than play out those pointless captures, both players pass and agree on which groups are dead. This is a gentleman\'s agreement built into the rules of Go.',
+    text:'After both players pass, you look at the board together and identify <strong>dead stones</strong> — groups that couldn\'t have survived even if the game had continued. A group is dead if it cannot make two eyes and cannot escape.<br><br>On this board, white\'s three stones in the top-right area (row 3, cols 6–8) are dead — they are completely enclosed by black with no room to make two eyes. White\'s group in the top-left is alive — it has space and could make eyes.<br><br>Dead stones are removed from the board and added to the opponent\'s prisoner pile — they count against you exactly like captured stones.<br><br>Both players must <strong>agree</strong> on which groups are dead. If there\'s a disagreement, play resumes until it\'s resolved. In your first games on OGS, the computer will help identify dead groups — you just confirm.<br><br><strong>Why does play stop at all?</strong> Play ends when both players agree there are no more useful moves — any stone placed in the opponent\'s settled territory would simply be captured, gaining nothing. Rather than play out those pointless captures, both players pass and agree on which groups are dead. This is a gentleman\'s agreement built into the rules of Go.',
     hint:'Press Next when ready',
     mode:'observe', showTerritory:false,
-    setup:{ blacks:[[1,1],[1,2],[2,1],[2,2],[0,3],[0,4],[0,5],[1,5],[2,5],[2,4],[2,3],[1,3],
-                    [6,6],[6,7],[7,6],[7,7],[5,4],[5,5],[5,6],[5,7],[5,8],[6,4],[7,4],[8,4],[8,5],[8,6],[8,7],[8,8]],
-            whites:[[0,0],[0,1],[0,2],[1,0],[2,0],[3,1],[3,2],[3,3],[3,4],[3,5],
-                    [4,6],[4,7],[4,8],[5,3],[6,3],[6,8],[7,3],[7,8]] },
+    setup:{ blacks:[
+      [0,4],[0,5],[0,6],[0,7],[0,8],
+      [1,4],[2,4],[3,4],[4,4],
+      [1,8],[2,8],[3,8],[4,8],
+      [4,5],[4,6],[4,7],
+      [6,0],[7,0],[8,0],[8,1],[8,2],[6,1],[6,2],[7,2]
+    ], whites:[
+      [2,5],[2,6],[2,7],
+      [0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,2]
+    ] },
     ok:'' },
 
   { part:'How a game ends', title:'What makes a group dead?', badge:'3 / 7',
