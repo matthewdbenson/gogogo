@@ -169,7 +169,7 @@
         <div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:11px;font-weight:500;min-width:20px;height:20px;border-radius:50%;background:var(--bg-info);color:var(--text-info);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">III</span><span><strong style="color:var(--text);font-weight:500;">Ko</strong> — the looping rule, with stepped animation</span></div>
       </div>
       <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
-        <div style="font-size:12px;color:var(--text-tertiary);">11 steps complete · ~40 min</div>
+        <div style="font-size:12px;color:var(--text-tertiary);">12 steps complete · ~40 min</div>
         <div style="font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius);background:var(--bg-info);color:var(--text-info);text-align:center;">Start here →</div>
       </div>
     </div>
@@ -245,7 +245,7 @@
 
   <header class="app-header">
     <div class="app-logo" onclick="showLanding()" style="cursor:pointer;" title="Back to home">碁 Go Teacher <span>Path A</span></div>
-    <div class="header-path">Rules-first · 11 steps</div>
+    <div class="header-path">Rules-first · 12 steps</div>
   </header>
 
   <div class="progress-section">
@@ -277,6 +277,8 @@
     <button id="btnNext" class="primary" onclick="nextLesson()" style="display:none">Next →</button>
     <button id="btnKoPrev" class="ko-btn" onclick="koPrev()" style="display:none">← Prev step</button>
     <button id="btnKoStep" class="ko-btn" onclick="koStep()" style="display:none">Show next move →</button>
+    <button id="btnShapeStep" class="ko-btn" onclick="shapeStep()" style="display:none">Show next →</button>
+    <button id="btnShapePrev" class="ko-btn" onclick="shapePrev()" style="display:none">← Prev</button>
     <button id="btnHint" onclick="showHint()" style="display:none">💡 Hint</button>
     <button id="btnAnswer" onclick="showAnswer()" style="display:none">Show answer</button>
   </div>
@@ -308,6 +310,7 @@ let canvas,ctx,CELL;
 let cur=0;
 let blacks=[],whites=[],captureCount=0,cornerPlaced=false,centerPlaced=false,edgePlaced=false,hoverPt=null;
 let koIdx=0;
+let shapeIdx=0;
 let scenarioDone=false,scenarioIdx=0,currentScenario=null,answerShown=false;
 let scenarioBlacks=[],scenarioWhites=[];
 
@@ -436,6 +439,100 @@ const KO_STEPS=[
   },
 ];
 
+const SHAPE_STEPS=[
+  {
+    blacks:[[0,3],[0,4],[0,5],[0,6],[0,7],
+            [2,3],[2,4],[2,5],[2,6],[2,7],
+            [1,3],[1,7]],
+    whites:[[1,5]],
+    verdict:null,
+    label:"Shape 1 of 4: White has one stone in a 3-point interior — 3 empty points in a row. White has 2 liberties. Can white make two separate eyes here? Black plays the key move."
+  },
+  {
+    blacks:[[0,3],[0,4],[0,5],[0,6],[0,7],
+            [2,3],[2,4],[2,5],[2,6],[2,7],
+            [1,3],[1,7],[1,4]],
+    whites:[[1,5]],
+    verdict:'dead',
+    label:"Dead — black plays the key point, leaving white one liberty at [1,6]. Black plays [1,6] next and white is captured. A 3-point interior cannot support two eyes — the opponent plays one end then the other. Minimum for a straight line: 5 interior points."
+  },
+  {
+    blacks:[[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],
+            [2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],
+            [1,2],[1,8]],
+    whites:[[1,5]],
+    verdict:null,
+    label:"Shape 2 of 4: Same corridor idea but 5 points wide. White is in the centre with 4 liberties. Can white make two eyes this time?"
+  },
+  {
+    blacks:[[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],
+            [2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],
+            [1,2],[1,8]],
+    whites:[[1,5],[1,3],[1,7]],
+    verdict:'alive',
+    label:"Alive — white plays [1,3] and [1,7], creating two separate enclosed points: [1,4] surrounded by black above and below, white on both sides; and [1,6] the same. Two genuine eyes — white lives. A 5-point corridor is the minimum for guaranteed life in a straight line."
+  },
+  {
+    blacks:[[0,3],[0,4],[0,5],[0,6],
+            [1,3],[2,3],[3,3],
+            [1,6],[2,6],[3,6]],
+    whites:[[1,4],[1,5],[2,4],[2,5]],
+    verdict:'dead',
+    label:"Shape 3 of 4: White has a 2×2 square. Count the empty points inside the group — there are none. A group needs interior empty points to form eyes. No interior space means no eyes are possible, regardless of how many outside liberties it has. The 2×2 square is always dead."
+  },
+  {
+    blacks:[[0,3],[0,4],[0,5],[0,6],[0,7],
+            [4,3],[4,4],[4,5],[4,6],[4,7],
+            [1,3],[2,3],[3,3],
+            [1,7],[2,7],[3,7],
+            [3,5]],
+    whites:[[2,5]],
+    verdict:'alive',
+    label:"Shape 4 of 4: White has one stone but a generous interior with 7 reachable empty points in an L-shape. White can make two eyes — the space divides naturally into a left region and a right region with the black stone at [3,5] helping to define them. When the interior has 6 or more reachable points in a non-linear shape, life is usually possible. Always ask: can I picture two completely separate enclosed spaces forming here?"
+  },
+];
+
+function setupShapes(){
+  shapeIdx=0;
+  const s=SHAPE_STEPS[0];
+  blacks=s.blacks.map(x=>[...x]);
+  whites=s.whites.map(x=>[...x]);
+  document.getElementById('tipbox').textContent=s.label;
+  document.getElementById('tipbox').style.display='block';
+  document.getElementById('btnShapeStep').style.display='inline-block';
+  document.getElementById('btnShapePrev').style.display='none';
+  document.getElementById('btnShapeStep').textContent='Show next →';
+}
+
+window.shapeStep=function(){
+  shapeIdx++;
+  if(shapeIdx>=SHAPE_STEPS.length){
+    document.getElementById('btnShapeStep').style.display='none';
+    refreshUI();return;
+  }
+  const s=SHAPE_STEPS[shapeIdx];
+  blacks=s.blacks.map(x=>[...x]);
+  whites=s.whites.map(x=>[...x]);
+  document.getElementById('tipbox').textContent=s.label;
+  document.getElementById('btnShapePrev').style.display='inline-block';
+  if(shapeIdx>=SHAPE_STEPS.length-1)
+    document.getElementById('btnShapeStep').style.display='none';
+  draw();refreshUI();
+};
+
+window.shapePrev=function(){
+  if(shapeIdx<=0)return;
+  shapeIdx--;
+  const s=SHAPE_STEPS[shapeIdx];
+  blacks=s.blacks.map(x=>[...x]);
+  whites=s.whites.map(x=>[...x]);
+  document.getElementById('tipbox').textContent=s.label;
+  document.getElementById('btnShapeStep').style.display='inline-block';
+  document.getElementById('btnShapeStep').textContent='Show next →';
+  if(shapeIdx===0)document.getElementById('btnShapePrev').style.display='none';
+  draw();refreshUI();
+};
+
 function setupKo(){
   koIdx=0;
   const s=KO_STEPS[0];
@@ -526,61 +623,68 @@ window.showAnswer=function(){
 };
 
 const LESSONS=[
-  {part:'Part I: Mechanics',title:'The Board & Your First Stone',badge:'1 / 11',
+  {part:'Part I: Mechanics',title:'The Board & Your First Stone',badge:'1 / 12',
    text:'The Go board is a grid of lines. Stones are placed on the <strong>intersections</strong>, not in the squares. Click anywhere to place black stones. Try placing at least 3 — just get a feel for it.',
    hint:'Click any intersection to place a stone',mode:'free',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
    check:()=>blacks.length>=3,status:()=>'Stones placed: '+blacks.length+' / 3',
    ok:'Great — stones sit on intersections. That\'s the whole foundation.'},
-  {part:'Part I: Mechanics',title:'Liberties — A Stone\'s Breathing Room',badge:'2 / 11',
+  {part:'Part I: Mechanics',title:'Liberties — A Stone\'s Breathing Room',badge:'2 / 12',
    text:'Every stone needs space to breathe. The open points directly adjacent — up, down, left, right — are its <strong>liberties</strong>. Note: adjacent points occupied by <em>your own</em> stones also remove liberties — your own colour blocks you just as much as the opponent\'s does. Hover a stone to see its liberties glow blue. Place one stone in a corner, one on an edge, one in the middle. Notice how each has fewer or more liberties.',
    hint:'Place stones in a corner, on an edge, and in the middle',mode:'free',showLibs:true,showEyes:false,showTerritory:false,showZones:false,
    check:()=>cornerPlaced&&edgePlaced&&centerPlaced,
    status:()=>'Corner: '+(cornerPlaced?'✓':'–')+' · Edge: '+(edgePlaced?'✓':'–')+' · Centre: '+(centerPlaced?'✓':'–'),
    ok:'Corner = 2 liberties, edge = 3, centre = 4. That\'s why the centre tends to be safer — more room to breathe.'},
-  {part:'Part I: Mechanics',title:'Capture — Liberties Only, Not Diagonals',badge:'3 / 11',
+  {part:'Part I: Mechanics',title:'Capture — Liberties Only, Not Diagonals',badge:'3 / 12',
    text:'Only the four <strong>orthogonal</strong> neighbours count as liberties — up, down, left, right. Diagonal points do <em>not</em> count. The orange dots show the white stone\'s actual liberties. Grey × marks are diagonals — irrelevant for capture. Click the orange dots to fill them with black stones.',
    hint:'Click the orange dots to capture the white stone',mode:'capture_show',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
    check:()=>captureCount>0,status:()=>captureCount>0?'Captured! ✓':'Fill all orange liberty dots',
    ok:'Only orthogonal neighbours matter for capture. Diagonals are always irrelevant.'},
-  {part:'Part I: Mechanics',title:'Capture — On Your Own',badge:'4 / 11',
+  {part:'Part I: Mechanics',title:'Capture — On Your Own',badge:'4 / 12',
    text:'A white stone is somewhere on the board. No guidance this time — find its four liberties and fill them all with black stones. When the last liberty is filled, the stone is captured and removed.',
    hint:'Find and fill all four liberties of the white stone',mode:'capture',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
    check:()=>captureCount>0,status:()=>captureCount>0?'Captured! ✓':'Find and fill all four liberties',
    ok:'Groups work the same way — you must fill ALL liberties of an entire connected group to capture it.'},
-  {part:'Part I: Mechanics',title:'Groups — Stones Stick Together',badge:'5 / 11',
+  {part:'Part I: Mechanics',title:'Groups — Stones Stick Together',badge:'5 / 12',
    text:'Touching stones of the same colour form a <strong>group</strong> and share all their liberties. A group of 5 stones might have 12 liberties — much harder to capture than an isolated stone. Hover a group to see all its shared liberties glow blue. Try building a connected chain of 4 or more black stones.',
    hint:'Place touching black stones to form a group of 4+',mode:'free',showLibs:true,showEyes:false,showTerritory:false,showZones:false,
    check:()=>largestGroup(blacks)>=4,status:()=>'Largest group: '+largestGroup(blacks)+' stones (need 4)',
    ok:'Connected stones are much harder to capture. Isolated stones are easy targets. "Connect or die" is one of Go\'s core instincts.'},
-  {part:'Part I: Mechanics',title:'Two Eyes — Unconditional Life',badge:'6 / 11',
+  {part:'Part I: Mechanics',title:'Two Eyes — Unconditional Life',badge:'6 / 12',
    text:'A group is <strong>permanently alive</strong> if it has two separate enclosed empty spaces — called <strong>eyes</strong>. An eye is an empty point where every adjacent intersection is your stone (the board edge counts as a wall). <strong>Amber glow</strong> = real eye ✓. <strong>Red glow</strong> = partially surrounded but still leaks outside. Try to create a group with 2 separate amber points inside it.',
    hint:'Build a group enclosing two separate empty spaces',mode:'free',showLibs:false,showEyes:true,showTerritory:false,showZones:false,
    check:()=>countEyes(blacks)>=2,status:()=>'Eyes detected: '+countEyes(blacks)+' / 2',
    ok:'Two eyes — that group can never die. This is the most important survival concept in Go.'},
-  {part:'Part I: Mechanics',title:'Territory — What You\'re Fighting For',badge:'7 / 11',
+  {part:'Part I: Mechanics',title:'Can this group live? Shape and space',badge:'7 / 12',
+   text:'A trapped group survives only if it can make <strong>two completely separate eyes</strong>. Whether that\'s possible depends on the shape and size of the interior space — not just the number of stones. Step through the four examples to build intuition for what lives and what dies.',
+   hint:'Press "Show next →" to step through the examples',mode:'shapes',showHealth:false,showLibs:false,showEyes:false,showTerritory:false,showZones:false,
+   check:()=>shapeIdx>=SHAPE_STEPS.length-1,
+   status:()=>shapeIdx===0?'Press the button below to begin':'Shape example '+(Math.floor(shapeIdx/2)+1)+' of 4',
+   ok:'The practical rule: if you cannot picture a trapped group making two completely separate enclosed spaces — given the available space with your opponent playing actively — it is dead. Shape matters as much as size.'},
+
+  {part:'Part I: Mechanics',title:'Territory — What You\'re Fighting For',badge:'8 / 12',
    text:'At the end of the game you count <strong>territory</strong>: empty points completely surrounded by your stones — no gaps, no open edges reaching the outside. The green glow shows valid enclosed territory as you build. Fully enclose at least 6 empty intersections.',
    hint:'Build a closed fence of black stones around empty points',mode:'free',showLibs:false,showEyes:false,showTerritory:true,showZones:false,
    check:()=>countTerritory(blacks)>=6,status:()=>'Territory enclosed: '+countTerritory(blacks)+' / 6',
    ok:'That\'s territory. Everything you\'ve learned — liberties, capture, groups, eyes — is in service of claiming this.'},
-  {part:'Part I: Mechanics',title:'Opening — Corners First',badge:'8 / 11',
+  {part:'Part I: Mechanics',title:'Opening — Corners First',badge:'9 / 12',
    text:'In the opening: <strong>corners first, edges second, centre last</strong>. A stone in the corner needs the fewest supporting stones to enclose territory — the board edge does some of the work for you. The board is shaded to show efficiency zones. Try placing 2 or more stones in corners and at least 1 on an edge.',
    hint:'2+ corners, 1+ edge, then anywhere',mode:'opening',showLibs:false,showEyes:false,showTerritory:false,showZones:true,
    check:()=>cornerCount()>=2&&edgeCount()>=1&&blacks.length>=4,
    status:()=>'Corners: '+cornerCount()+'/2 · Edges: '+edgeCount()+'/1 · Total: '+blacks.length+'/4',
    ok:'Corners give you the most territory for the fewest stones. Most 9×9 games are decided in the corners.'},
-  {part:'Part II: Strategy',title:'Responding to Your Opponent',badge:'9 / 11',
+  {part:'Part II: Strategy',title:'Responding to Your Opponent',badge:'10 / 12',
    text:'When white plays, you always have a choice: <strong>respond locally</strong> (block or attack near white\'s stone) or <strong>play your own plan</strong> elsewhere. The key question: is white directly threatening to capture your stones or invade your territory? If yes — respond. If not — consider your biggest move instead. Work through all 6 board scenarios below. Click where you\'d play black, read the feedback, then press Next to continue.',
    hint:'Click where you would play black',mode:'scenario',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
    check:()=>scenarioIdx>=SCENARIOS.length-1&&scenarioDone,
    status:()=>'Scenario '+(scenarioIdx+1)+' of '+SCENARIOS.length+(scenarioDone?' — press Next to continue':'— click to respond'),
    ok:'Good instincts are what separates a thinking player from a mechanical one. These judgements improve with every game you play.'},
-  {part:'Part III: Ko',title:'Ko — The Looping Rule',badge:'10 / 11',
+  {part:'Part III: Ko',title:'Ko — The Looping Rule',badge:'11 / 12',
    text:'Ko arises when two players could endlessly recapture each other\'s stone, looping the board forever. The rule: <strong>you cannot make a move that recreates the exact previous board position</strong>. To recapture a ko stone, you must first play a "ko threat" elsewhere — a move your opponent must answer. Watch the animation carefully: notice the stone at the centre actually disappears when captured, then reappears when recaptured.',
    hint:'Press "Show next move" to step through the ko fight',mode:'ko',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
    check:()=>koIdx>=KO_STEPS.length-1,
    status:()=>koIdx===0?'Press the button below to begin':koIdx<KO_STEPS.length-1?'Step '+koIdx+' of '+(KO_STEPS.length-1):'Complete ✓',
    ok:'Ko is one of Go\'s most fascinating complications. For now: if you can\'t recapture immediately, play your biggest ko threat elsewhere first.'},
-  {part:'Complete!',title:'You\'ve finished Path A',badge:'11 / 11',
+  {part:'Complete!',title:'You\'ve finished Path A',badge:'12 / 12',
    text:'You now know everything you need to play a real game of Go. Here\'s what you\'ve covered:<br><br><strong>Mechanics:</strong> placing stones, liberties, capture, groups, two eyes, territory, the Ko rule.<br><strong>Strategy:</strong> corners-first opening, when to respond vs. when to play your own plan.<br><br><strong>Your next step: play a real game.</strong><br><br><a href="https://online-go.com" target="_blank">OGS (online-go.com)</a> is free. Go there, choose 9×9, and play against the computer — select "Weak bot" or the lowest difficulty. Lose a few games. Each loss teaches more than any lesson.<br><br><strong>When you\'re ready for more:</strong> Path B (coming soon) teaches the same ideas from the opposite direction — starting with board intuition rather than rules. Tactics (ladders, nets, snapback) and Life & Death puzzles come after that.',
    hint:'',mode:'done',showLibs:false,showEyes:false,showTerritory:false,showZones:false,
    check:()=>true,status:()=>'',ok:''},
@@ -609,6 +713,8 @@ function refreshUI(){
   document.getElementById('btnPrev').style.display=cur>0?'inline-block':'none';
   document.getElementById('btnKoPrev').style.display=(L.mode==='ko'&&koIdx>0)?'inline-block':'none';
   document.getElementById('btnKoStep').style.display=(L.mode==='ko'&&koIdx<KO_STEPS.length-1)?'inline-block':'none';
+  document.getElementById('btnShapeStep').style.display=(L.mode==='shapes'&&shapeIdx<SHAPE_STEPS.length-1)?'inline-block':'none';
+  document.getElementById('btnShapePrev').style.display=(L.mode==='shapes'&&shapeIdx>0)?'inline-block':'none';
   document.getElementById('btnHint').style.display=(L.mode==='scenario'&&!scenarioDone)?'inline-block':'none';
   document.getElementById('btnAnswer').style.display=(L.mode==='scenario'&&!scenarioDone)?'inline-block':'none';
   document.getElementById('status').textContent=L.status();
@@ -769,10 +875,29 @@ function draw(){
     ctx.fillStyle='#f2f0ec';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.44,0,Math.PI*2);ctx.stroke();
   }
+  if(L.mode==='shapes'&&SHAPE_STEPS[shapeIdx]){
+    const v=SHAPE_STEPS[shapeIdx].verdict;
+    if(v==='dead'){
+      for(const[r,c]of whites){
+        ctx.strokeStyle='rgba(200,40,40,0.85)';ctx.lineWidth=2.5;
+        ctx.beginPath();ctx.moveTo(PAD+c*CELL-CELL*0.25,PAD+r*CELL-CELL*0.25);
+        ctx.lineTo(PAD+c*CELL+CELL*0.25,PAD+r*CELL+CELL*0.25);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(PAD+c*CELL+CELL*0.25,PAD+r*CELL-CELL*0.25);
+        ctx.lineTo(PAD+c*CELL-CELL*0.25,PAD+r*CELL+CELL*0.25);ctx.stroke();
+        ctx.lineWidth=0.8;
+      }
+    } else if(v==='alive'){
+      for(const[r,c]of whites){
+        ctx.strokeStyle='rgba(60,180,80,0.9)';ctx.lineWidth=2.5;
+        ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.47,0,Math.PI*2);
+        ctx.stroke();ctx.lineWidth=0.8;
+      }
+    }
+  }
   for(const k of libSet){const[r,c]=fromPt(k);ctx.fillStyle='rgba(74,142,212,0.55)';ctx.beginPath();ctx.arc(PAD+c*CELL,PAD+r*CELL,CELL*0.2,0,Math.PI*2);ctx.fill();}
 
   // Hover ghost
-  if(hoverPt&&L.mode!=='ko'&&L.mode!=='done'){
+  if(hoverPt&&L.mode!=='ko'&&L.mode!=='done'&&L.mode!=='shapes'){
     const[hr,hc]=hoverPt;
     if(!has(blacks,hr,hc)&&!has(whites,hr,hc)){
       ctx.fillStyle='rgba(0,0,0,0.2)';ctx.beginPath();ctx.arc(PAD+hc*CELL,PAD+hr*CELL,CELL*0.44,0,Math.PI*2);ctx.fill();
@@ -785,11 +910,16 @@ function draw(){
     ctx.fillStyle='#fff';ctx.font='11px sans-serif';
     ctx.fillText(koIdx===0?'Press button below to begin':'Step '+(koIdx+1)+' of '+KO_STEPS.length,PAD+4,W-PAD+14);
   }
+  if(L.mode==='shapes'){
+    ctx.fillStyle='rgba(139,105,20,0.7)';ctx.fillRect(PAD,W-PAD+4,160,14);
+    ctx.fillStyle='#fff';ctx.font='11px sans-serif';
+    ctx.fillText(shapeIdx===0?'Press button below to begin':'Shape '+(Math.floor(shapeIdx/2)+1)+' of 4',PAD+4,W-PAD+14);
+  }
 }
 
 function onClick(e){
   const L=LESSONS[cur];
-  if(L.mode==='ko'||L.mode==='done')return;
+  if(L.mode==='ko'||L.mode==='done'||L.mode==='shapes')return;
   const rect=canvas.getBoundingClientRect();
   const scaleX=canvas.width/rect.width;
   const scaleY=canvas.height/rect.height;
@@ -875,11 +1005,12 @@ function applyLesson(){
   document.getElementById('tipbox').style.display='none';
   document.getElementById('btnKoStep').style.display='none';
   document.getElementById('btnKoStep').textContent='Show next move →';
-  blacks=[];whites=[];captureCount=0;cornerPlaced=false;centerPlaced=false;edgePlaced=false;hoverPt=null;koIdx=0;scenarioDone=false;currentScenario=null;scenarioIdx=0;answerShown=false;scenarioBlacks=[];scenarioWhites=[];
+  blacks=[];whites=[];captureCount=0;cornerPlaced=false;centerPlaced=false;edgePlaced=false;hoverPt=null;koIdx=0;shapeIdx=0;scenarioDone=false;currentScenario=null;scenarioIdx=0;answerShown=false;scenarioBlacks=[];scenarioWhites=[];
   if(L.mode==='capture'||L.mode==='capture_show'){
     const pos=[[2,4],[3,6],[4,2],[5,5],[6,3]];const[wr,wc]=pos[cur%pos.length];whites=[[wr,wc]];
   }
   if(L.mode==='ko')setupKo();
+  if(L.mode==='shapes')setupShapes();
   if(L.mode==='scenario')loadScenario(0);
   buildDots();refreshUI();draw();
   // Scroll to top of board
