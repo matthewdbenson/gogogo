@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Teacher — Glossary</title>
+<style>
+  :root {
+    --bg:#faf9f6;--bg-card:#ffffff;--bg-secondary:#f4f2ee;
+    --bg-info:#eef4ff;--bg-success:#edfbf3;
+    --text:#1a1a18;--text-secondary:#5c5b57;--text-tertiary:#9c9b96;
+    --text-info:#1a5fb4;
+    --border:rgba(0,0,0,0.1);--border-strong:rgba(0,0,0,0.18);
+    --radius:10px;--radius-lg:14px;
+    --font:'Georgia','Times New Roman',serif;
+    --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+  @media(prefers-color-scheme:dark){:root{
+    --bg:#1a1a18;--bg-card:#242420;--bg-secondary:#2c2c28;
+    --bg-info:#0d1f3c;
+    --text:#f0ede6;--text-secondary:#a8a49c;--text-tertiary:#6a6760;
+    --text-info:#7ab3f0;
+    --border:rgba(255,255,255,0.1);--border-strong:rgba(255,255,255,0.18);
+  }}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-height:100vh;}
+  .app-shell{max-width:680px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+  .app-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:0.5px solid var(--border);margin-bottom:2rem;}
+  .app-logo{font-family:var(--font);font-size:18px;color:var(--text);letter-spacing:-0.3px;cursor:pointer;}
+  .app-logo span{color:var(--text-tertiary);font-weight:400;font-size:14px;margin-left:8px;font-family:var(--font-ui);}
+  .header-path{font-size:12px;color:var(--text-tertiary);background:var(--bg-secondary);padding:3px 10px;border-radius:20px;border:0.5px solid var(--border);}
+  .section-label{font-size:11px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;}
+  .glossary-section{display:flex;flex-direction:column;gap:0;margin-bottom:2rem;}
+  .glossary-term{padding:0.9rem 0;border-bottom:0.5px solid var(--border);}
+  .glossary-term:last-child{border-bottom:none;}
+  .term-word{font-size:15px;font-weight:500;color:var(--text);margin-bottom:0.3rem;font-family:var(--font);}
+  .term-def{font-size:13px;color:var(--text-secondary);line-height:1.75;}
+  .term-def strong{color:var(--text);font-weight:500;}
+  .app-footer{text-align:center;font-size:11px;color:var(--text-tertiary);padding-top:1rem;border-top:0.5px solid var(--border);}
+  .app-footer a{color:var(--text-tertiary);}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="app-header">
+    <div class="app-logo" onclick="window.location.href='index.html'">
+      碁 Go Teacher <span>Glossary</span>
+    </div>
+    <div class="header-path">Reference</div>
+  </header>
+
+  <div class="section-label">The board</div>
+  <div class="glossary-section">
+    <div class="glossary-term">
+      <div class="term-word">Intersection</div>
+      <div class="term-def">The point where two grid lines cross. Stones are placed on intersections, not in the squares between lines. A 9×9 board has 81 intersections.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Star point (hoshi)</div>
+      <div class="term-def">One of the small dots marked on certain intersections. On a 9×9 board there are five: four near the corners and one at the centre. They are reference markers only — no special rules apply to them.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Stones and groups</div>
+  <div class="glossary-section">
+    <div class="glossary-term">
+      <div class="term-word">Liberty</div>
+      <div class="term-def">An empty point directly adjacent to a stone or group — <strong>up, down, left, or right only</strong>. Diagonal points never count as liberties. A stone with no liberties is captured and removed from the board. Your own stones block your own liberties just as much as the opponent's do.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Group (also: string)</div>
+      <div class="term-def">A set of stones of the same colour connected by touching each other orthogonally. A group shares all its liberties and lives or dies together — you must fill every liberty of an entire group to capture it.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Capture</div>
+      <div class="term-def">Removing an opponent's stone or group from the board by filling all of its liberties in one move. Captured stones become prisoners and count against the captured player's score.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Atari</div>
+      <div class="term-def">A situation where a stone or group has exactly one liberty remaining — one more move by the opponent captures it. In casual games, players sometimes say "atari" as a warning, though this is not required by the rules.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Eye</div>
+      <div class="term-def">An empty point completely enclosed by stones of one colour — every adjacent intersection is occupied by that player's own stones. The board edge does <strong>not</strong> count; only stones create eyes.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">False eye</div>
+      <div class="term-def">An empty point that looks like an eye but isn't — because at least one adjacent point is controlled by the opponent, who could eventually fill it. A group relying on false eyes is dead.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Two eyes — unconditional life</div>
+      <div class="term-def">A group with two genuine separate eyes cannot be captured under any circumstances. To capture it, the opponent would need to fill both eyes simultaneously — impossible, since only one stone may be placed per turn, and filling either eye alone would be illegal self-capture.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Dead stones</div>
+      <div class="term-def">Stones that cannot survive even if play continues — they cannot make two eyes and cannot escape. After both players pass, dead stones are removed by mutual agreement and added to the opponent's prisoner count without needing to play out every capture.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Prisoner</div>
+      <div class="term-def">A stone captured during the game, or a dead stone removed at the end. Each prisoner costs the losing player one point at scoring.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Territory and scoring</div>
+  <div class="glossary-section">
+    <div class="glossary-term">
+      <div class="term-word">Territory</div>
+      <div class="term-def">Empty intersections completely surrounded by one player's stones, with no gaps or routes to the outside. Counted at the end of the game. <strong>Final score = territory + prisoners.</strong></div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Komi</div>
+      <div class="term-def">Bonus points given to white to compensate for black playing first. On a 9×9 board, komi is typically <strong>6.5 points</strong>. The 0.5 prevents draws — one player always wins by at least half a point.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Pass</div>
+      <div class="term-def">A player's option to take no action on their turn. Two consecutive passes end the game. Players pass when they believe no more useful moves exist — playing in settled positions would only reduce their own score.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Neutral point (dame)</div>
+      <div class="term-def">An empty intersection that belongs to neither player — surrounded by both colours or otherwise unenclosed. Neutral points score nothing and are typically filled in as a formality at the very end.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Rules and special situations</div>
+  <div class="glossary-section">
+    <div class="glossary-term">
+      <div class="term-word">Ko</div>
+      <div class="term-def">A situation where two players could endlessly recapture each other's single stone, cycling the board through the same states forever. The Ko rule prevents this: <strong>you may not make a move that recreates the exact previous board position.</strong> To recapture a ko stone, you must first play a ko threat elsewhere.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Ko threat</div>
+      <div class="term-def">A move played elsewhere during a ko fight — threatening something valuable enough that the opponent must respond. After the opponent responds, the board state has changed and you may legally recapture the ko stone.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Self-capture (suicide)</div>
+      <div class="term-def">Playing a stone onto a point where it would immediately have zero liberties without capturing any opponent stones. Self-capture is illegal in most rulesets. This is why filling an opponent's eye (when they have two eyes) is forbidden.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Strategy terms</div>
+  <div class="glossary-section">
+    <div class="glossary-term">
+      <div class="term-word">Sente</div>
+      <div class="term-def">A move that requires the opponent to respond — it keeps the initiative. After your opponent answers a sente move, you get to choose where to play next. Sente moves are generally more valuable than gote moves of similar size.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Gote</div>
+      <div class="term-def">A move that does not require a response — after playing it, the opponent gets to choose where to play next. The opposite of sente. A gote move gives up the initiative.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Influence</div>
+      <div class="term-def">The potential to control territory or affect the safety of groups across a broad area, even without stones already there. Strong outward-facing groups exert influence over nearby open space.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Joseki</div>
+      <div class="term-def">An established sequence of moves in a corner considered locally balanced — neither player gains a significant advantage. Beginners need not memorise joseki; understanding the principles behind them is more valuable.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Tsumego (life and death problems)</div>
+      <div class="term-def">Puzzles presenting a small board position and asking you to find the move that keeps a group alive — or kills the opponent's. Solving tsumego regularly is one of the fastest ways to improve at Go.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Tesuji</div>
+      <div class="term-def">An elegant tactical move that achieves more than it appears to — often exploiting the geometry of the board in a clever way. Recognising tesuji patterns is a sign of developing reading ability.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Shape</div>
+      <div class="term-def">The geometric arrangement of a group of stones. Good shape (e.g. the bamboo joint, the tiger's mouth) is efficient — hard to attack, flexible, liberty-rich. Bad shape (e.g. the empty triangle) wastes moves and liberties.</div>
+    </div>
+    <div class="glossary-term">
+      <div class="term-word">Empty triangle</div>
+      <div class="term-def">Three stones of the same colour arranged in an L-shape with the corner of the L empty. Considered bad shape — the three stones share fewer liberties than they would in a straight line, and the empty corner is wasted.</div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Go Teacher · <a href="index.html">Home</a> · <a href="https://online-go.com" target="_blank">Play on OGS</a>
+  </footer>
+
+</div>
+</body>
+</html>
