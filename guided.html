@@ -645,35 +645,420 @@ window.nextMove=function(){
 };
 
 // ── MOVES data ───────────────────────────────────────────────────────────────
-// PLACEHOLDER — full MOVES data added in Phase 2
 const MOVES = [
+
+  // ── MOVE 0: Opening position ──────────────────────────────────────────
   {
     moveNum:0, player:null, goCoord:null,
     blacks:[], whites:[], lastMove:null, lastMoveThreatening:false,
     phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
-    whatHappened:"Welcome. You're playing black — black always goes first. The board is empty. Where do you start?",
-    risks:[{rank:1,badge:'note',text:'No risks yet — the board is empty.'}],
-    opportunities:[{rank:1,badge:'best',text:'Play C7 — the top-left corner area. Corners are the most efficient start.'}],
+    whatHappened:"Welcome. You're playing black — black always goes first in Go. The board is empty and the whole game is ahead of you. Every intersection is available. The question is: where do you start?",
+    risks:[
+      {rank:1,badge:'note',text:'No risks yet — the board is empty. Focus entirely on your opening strategy.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'Play C7 — the top-left corner area (the 3-3 point). Corners are the most efficient start: two board edges act as walls, so fewer stones are needed to enclose territory.',subNote:null},
+      {rank:2,badge:'good',text:'Any corner is a good opening move. C7, C3, G7, or G3 — all equally valid.',subNote:null}
+    ],
     riskOppAlignment:false, bestMove:[2,2],
     areas:[
       {color:'rgba(60,160,60,0.13)',rect:'corners',label:'corners first',labelPos:'tl'},
       {color:'rgba(255,160,0,0.10)',rect:'edges',label:'edges next',labelPos:'top'},
       {color:'rgba(220,60,60,0.08)',rect:'centre',label:'centre last',labelPos:'centre'}
     ],
-    rings:[], riskArrows:[],
+    rings:[],
+    riskArrows:[],
     oppArrows:[{from:[4,4],to:[2,2],color:'rgba(26,122,60,0.7)',label:'start here'}]
   },
+
+  // ── MOVE 1: Black plays C7 [2,2] ─────────────────────────────────────
   {
     moveNum:1, player:'black', goCoord:'C7',
     blacks:[[2,2]], whites:[], lastMove:[2,2], lastMoveThreatening:false,
     phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
-    whatHappened:"Black plays C7 — the top-left corner. Corners are the most efficient place to build territory. White responds.",
-    risks:[{rank:1,badge:'note',text:'Your C7 stone is safe with 4 liberties.'}],
-    opportunities:[{rank:1,badge:'good',text:'After white responds, claim another corner — G7 is natural.'}],
+    whatHappened:"You play to C7 — the top-left corner area. Corners are the most efficient place to start: the two board edges act as walls, meaning fewer of your own stones are needed to enclose territory. White responds.",
+    risks:[
+      {rank:1,badge:'note',text:'Your C7 stone is safe with 4 liberties. No risks at this stage.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'good',text:'White will likely mirror your strategy and claim the bottom-right corner. After white responds, claim another corner — G7 (top-right) is the natural next move.',subNote:null}
+    ],
     riskOppAlignment:false, bestMove:null,
-    areas:[], rings:[{stones:[[2,2]],libs:4,type:'green'}],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'tl-corner',label:'your corner',labelPos:'tl'}
+    ],
+    rings:[{stones:[[2,2]],libs:4,type:'green'}],
     riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 2: White plays G3 [6,6] ─────────────────────────────────────
+  {
+    moveNum:2, player:'white', goCoord:'G3',
+    blacks:[[2,2]], whites:[[6,6]], lastMove:[6,6], lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"White mirrors your strategy — claiming the bottom-right corner at G3. Smart. White is thinking the same way you are. Two corners claimed, two still open.",
+    risks:[
+      {rank:1,badge:'note',text:'No risks. Both stones are safe with 4 liberties in open corners.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'Claim another corner — G7 (top-right) is the biggest available move. Both remaining corners are equally good; G7 develops your top-right area.',subNote:null},
+      {rank:2,badge:'good',text:'C3 (bottom-left) is equally valid. Either remaining corner is correct.',subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[2,6],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'tl-corner',label:'yours',labelPos:'tl'},
+      {color:'rgba(100,100,220,0.07)',rect:'br-corner',label:"white's",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[6,6]],libs:4,type:'green'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[2,2],to:[2,6],color:'rgba(26,122,60,0.7)',label:'claim G7'}]
+  },
+
+  // ── MOVE 3: Black plays G7 [2,6] ─────────────────────────────────────
+  {
+    moveNum:3, player:'black', goCoord:'G7',
+    blacks:[[2,2],[2,6]], whites:[[6,6]], lastMove:[2,6], lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"You claim the top-right corner at G7. Two corners to one — you're ahead in the opening. Your two stones at C7 and G7 are starting to suggest a presence along the top of the board. White will likely take the remaining corner.",
+    risks:[
+      {rank:1,badge:'note',text:'Both your stones are healthy — 4 liberties each. No risks.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'White will take C3 next. After that, play E9 — the top edge midpoint between your two corner stones. This starts to claim the entire top strip.',subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[], rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[2,6]],libs:4,type:'green'}
+    ],
+    riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 4: White plays C3 [6,2] ─────────────────────────────────────
+  {
+    moveNum:4, player:'white', goCoord:'C3',
+    blacks:[[2,2],[2,6]], whites:[[6,6],[6,2]], lastMove:[6,2], lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"White takes the last corner — all four corners are now claimed. Two each. The game is balanced. The focus now shifts to the edges — connecting your corner stones into larger territories.",
+    risks:[
+      {rank:1,badge:'note',text:'All four stones on both sides have 4 liberties in open corners. No risks.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'Play E9 — the top edge midpoint. This sits between your two corner stones and starts to claim the entire top strip as your territory.',subNote:null},
+      {rank:2,badge:'good',text:'A5 (left edge midpoint) is also a strong option, extending your left-side presence.',subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[0,4],
+    areas:[], rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[2,6]],libs:4,type:'green'},
+      {stones:[[6,2]],libs:4,type:'green'},
+      {stones:[[6,6]],libs:4,type:'green'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[2,4],to:[0,4],color:'rgba(26,122,60,0.7)',label:'E9: claim top edge'}]
+  },
+
+  // ── MOVE 5: Black plays E9 [0,4] ─────────────────────────────────────
+  {
+    moveNum:5, player:'black', goCoord:'E9',
+    blacks:[[2,2],[2,6],[0,4]], whites:[[6,6],[6,2]], lastMove:[0,4], lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"You play to E9 — the top edge midpoint. Your three stones at C7, E9, and G7 form a loose arc influencing the entire top area. White will now develop along the bottom.",
+    risks:[
+      {rank:1,badge:'note',text:'All your stones are healthy. E9 on the edge has 3 liberties — fine.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'After white responds at the bottom edge, play A5 — the left edge midpoint. This extends your influence down the left side and connects toward C7.',subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.08)',rect:'top-strip',label:'your influence',labelPos:'top'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[2,6]],libs:4,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'}
+    ],
+    riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 6: White plays E1 [8,4] ─────────────────────────────────────
+  {
+    moveNum:6, player:'white', goCoord:'E1',
+    blacks:[[2,2],[2,6],[0,4]], whites:[[6,6],[6,2],[8,4]], lastMove:[8,4], lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"White mirrors your move — claiming the bottom edge at E1. The board is dividing: you're building toward the top, white toward the bottom. The middle is still open.",
+    risks:[
+      {rank:1,badge:'note',text:'No risks. The board is symmetric and balanced.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'Play A5 — the left edge midpoint. This claims the left side before white can and connects your C7 influence downward.',subNote:null},
+      {rank:2,badge:'good',text:'J5 (right edge) is equally valid. Either side edge is correct now.',subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[4,0],
+    areas:[
+      {color:'rgba(60,180,80,0.08)',rect:'top-strip',label:'your area',labelPos:'top'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-strip',label:"white's area",labelPos:'bottom'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[2,6]],libs:4,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[6,2]],libs:4,type:'green'},
+      {stones:[[6,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'amber'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[2,2],to:[4,0],color:'rgba(26,122,60,0.7)',label:'A5: left edge'}]
+  },
+
+  // ── MOVE 7: Black plays A5 [4,0] ─────────────────────────────────────
+  {
+    moveNum:7, player:'black', goCoord:'A5',
+    blacks:[[2,2],[2,6],[0,4],[4,0]], whites:[[6,6],[6,2],[8,4]], lastMove:[4,0], lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"You claim the left edge at A5 — now you have stones influencing the top and left side of the board. White will respond on the right edge.",
+    risks:[
+      {rank:1,badge:'note',text:'A5 on the edge has 2 liberties — corner-adjacent. Safe for now.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'After white takes J5, play G8 — reinforce your top-right stone at G7 by playing above it. Two connected stones are much harder to attack than one.',subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.08)',rect:'top-left-quad',label:'your area developing',labelPos:'tl'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[2,6]],libs:4,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'}
+    ],
+    riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 8: White plays J5 [4,8] ─────────────────────────────────────
+  {
+    moveNum:8, player:'white', goCoord:'J5',
+    blacks:[[2,2],[2,6],[0,4],[4,0]], whites:[[6,6],[6,2],[8,4],[4,8]], lastMove:[4,8], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"White takes the right edge — now both players have claimed all four edges. Your top-right stone at G7 is a little isolated — 4 liberties, no neighbours.",
+    risks:[
+      {rank:1,badge:'watch',text:'Your G7 stone is isolated — 4 liberties, no neighbours. Reinforcing it next is wise.'},
+      {rank:2,badge:'note',text:'A5 has only 2 liberties. Safe while white has nothing nearby.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:'Play G8 — connect above G7. Two connected stones are much harder to attack. This also starts to claim the top-right corner area.',subNote:null},
+      {rank:2,badge:'good',text:'The top-right corner area remains open — after G8, continue building there.',subNote:null}
+    ],
+    riskOppAlignment:true, bestMove:[1,6],
+    areas:[
+      {color:'rgba(60,180,80,0.08)',rect:'top-left-quad',label:'your area',labelPos:'tl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[2,6]],libs:4,type:'amber'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,2]],libs:4,type:'green'},
+      {stones:[[6,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'amber'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[{from:[2,6],to:[1,6],color:'rgba(180,100,0,0.75)',label:'reinforce G7'}],
+    oppArrows:[{from:[2,6],to:[1,6],color:'rgba(26,122,60,0.85)',label:'1. G8: reinforce'}]
+  },
+
+  // ── MOVE 9: Black plays G8 [1,6] — CONFIDENCE APPEARS ────────────────
+  {
+    moveNum:9, player:'black', goCoord:'G8',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6]], whites:[[6,6],[6,2],[8,4],[4,8]], lastMove:[1,6], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:52, confidenceDelta:1,
+    confidenceText:"Your top area is taking shape — slight edge on momentum",
+    whatHappened:"You reinforce G7 by playing G8 — connecting two stones is always stronger than one alone. Your group at G8/G7 now has 6 liberties and is starting to claim the top-right corner area. White will press toward your top-right group.",
+    risks:[
+      {rank:1,badge:'note',text:'Your G8/G7 group is healthy — 6 liberties. A5 still has 2 liberties — safe while white is far away.'}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"If white presses your G7/G8 group, you can afford to ignore it for one move and play somewhere bigger — like E3 (bottom centre). Your group is strong enough to withstand one move of pressure.",subNote:null},
+      {rank:2,badge:'target',text:"White's E1 stone has only 3 liberties and is isolated on the bottom edge. Keep this in mind as a future target.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area developing',labelPos:'top'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:6,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,2]],libs:4,type:'green'},
+      {stones:[[6,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 10: White plays G6 [3,6] ────────────────────────────────────
+  {
+    moveNum:10, player:'white', goCoord:'G6',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6]], lastMove:[3,6], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:52, confidenceDelta:0,
+    confidenceText:"Position steady — white's pressure on your top-right group is manageable",
+    whatHappened:"White pushes toward your top-right group from below — pressing to limit how much territory you claim there. Your group still has 5 liberties and is perfectly safe. You don't need to respond immediately.",
+    risks:[
+      {rank:1,badge:'watch',text:"Your G8/G7 group has 5 liberties — safe. White is pressing but not threatening a capture."},
+      {rank:2,badge:'note',text:"A5 still has 2 liberties. Isolated but not threatened."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Ignore white's pressure — your group is fine. Play E3 instead (bottom-centre). This extends your left-side influence toward the contested bottom area and threatens to press white's isolated C3 stone.",subNote:{type:'align',text:"Your G8/G7 group is safe enough that ignoring this pressure for one move is correct — E3 is the bigger opportunity."}},
+      {rank:2,badge:'target',text:"White's E1 stone remains isolated with 3 liberties — a target for later.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[6,4],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'},
+      {color:'rgba(255,160,0,0.08)',rect:'bottom-left-area',label:'contested',labelPos:'bl'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,2]],libs:4,type:'green'},
+      {stones:[[6,6],[3,6]],libs:5,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[4,0],to:[6,4],color:'rgba(26,122,60,0.85)',label:'1. E3: bigger move'}]
+  },
+
+  // ── MOVE 11: Black plays E3 [6,4] ────────────────────────────────────
+  {
+    moveNum:11, player:'black', goCoord:'E3',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6]], lastMove:[6,4], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:54, confidenceDelta:1,
+    confidenceText:"Ignoring white's pressure was the right call — momentum building",
+    whatHappened:"You ignore white's pressure on the right and play the bigger move at E3 — extending toward the contested bottom area. This is good Go instinct: you play your plan, not white's agenda.",
+    risks:[
+      {rank:1,badge:'watch',text:"Your G8/G7 group still has 5 liberties — white is pressing but not urgently. Monitor it."},
+      {rank:2,badge:'watch',text:"White's C3 stone is isolated near your new E3 stone. White may try to reinforce it next."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"White's C3 is isolated with 4 liberties and no neighbours. Play B3 next — press C3 from the left, reducing it to 3 liberties and forcing white to defend.",subNote:null},
+      {rank:2,badge:'target',text:"White's E1 stone — 3 liberties, still isolated. Good long-term target.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'},
+      {color:'rgba(255,160,0,0.08)',rect:'bottom-left-area',label:'contested',labelPos:'bl'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,2]],libs:4,type:'amber'},
+      {stones:[[6,6],[3,6]],libs:5,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[6,4],to:[6,1],color:'rgba(26,122,60,0.85)',label:'1. press C3'}]
+  },
+
+  // ── MOVE 12: White plays G4 [5,6] ────────────────────────────────────
+  {
+    moveNum:12, player:'white', goCoord:'G4',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6]], lastMove:[5,6], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:53, confidenceDelta:-1,
+    confidenceText:"White builds bottom-right — your turn to press C3",
+    whatHappened:"White plays G4 — connecting to G3, building a stronger bottom-right group. White's group now has 6 liberties. White is consolidating on the right while leaving C3 still isolated on the left. This is your opportunity.",
+    risks:[
+      {rank:1,badge:'watch',text:"Your A5 stone still has only 2 liberties. Safe while white is distant but track it."},
+      {rank:2,badge:'note',text:"White's C3 is still isolated — white left it undefended this move."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Press white's C3 now — play B3. White just neglected it. This reduces C3 to 3 liberties and forces white to finally defend.",subNote:null},
+      {rank:2,badge:'good',text:"After pressing C3, you can build your bottom-left presence with B2, claiming that corner area.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[6,1],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'},
+      {color:'rgba(255,160,0,0.08)',rect:'bottom-left-area',label:'contested',labelPos:'bl'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,2]],libs:4,type:'amber'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[6,4],to:[6,1],color:'rgba(26,122,60,0.85)',label:'1. B3: press now'}]
+  },
+
+  // ── MOVE 13: Black plays B3 [6,1] ────────────────────────────────────
+  {
+    moveNum:13, player:'black', goCoord:'B3',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6]], lastMove:[6,1], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:55, confidenceDelta:1,
+    confidenceText:"Bottom-left pressure gaining — white's C3 stone is being squeezed",
+    whatHappened:"You press white's C3 stone from the left — reducing it to 3 liberties and establishing your presence at B3. Good Go instinct: attack isolated stones to profit. White must now defend.",
+    risks:[
+      {rank:1,badge:'watch',text:"Your B3 stone has only 3 liberties with white nearby. Not urgent — but reinforce it soon with B2."},
+      {rank:2,badge:'watch',text:"White's C3 is under pressure with 3 liberties. White must respond."},
+      {rank:3,badge:'note',text:"Your other groups are all healthy — 4+ liberties. No action needed there."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play B2 — connects to B3, brings the group to 5 liberties, and extends toward the unclaimed bottom-left corner. Defensive and constructive simultaneously.",subNote:{type:'align',text:"Risk and opportunity align — B2 is both the most prudent and the most constructive move."}},
+      {rank:2,badge:'good',text:"After B2, continue pressing white's C3. Every move white spends defending, you spend gaining.",subNote:null},
+      {rank:3,badge:'target',text:"White's E1 remains isolated with 3 liberties. Press it once the bottom-left is secure.",subNote:null}
+    ],
+    riskOppAlignment:true, bestMove:[7,1],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'},
+      {color:'rgba(255,160,0,0.08)',rect:'bottom-left-area',label:'contested',labelPos:'bl'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1]],libs:3,type:'amber'},
+      {stones:[[6,2]],libs:3,type:'amber'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[
+      {from:[6,1],to:[6,2],color:'rgba(180,100,0,0.75)',label:'white pressing B3'},
+      {from:[6,1],to:[7,1],color:'rgba(26,95,180,0.75)',label:'1. reinforce: B2'}
+    ],
+    oppArrows:[
+      {from:[6,1],to:[7,1],color:'rgba(26,122,60,0.85)',label:'1. B2: best move'}
+    ]
   }
+
+  // Moves 14-26 added in Phase 3
 ];
 
 // ── Init ─────────────────────────────────────────────────────────────────────
