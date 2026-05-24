@@ -1058,7 +1058,403 @@ const MOVES = [
     ]
   }
 
-  // Moves 14-26 added in Phase 3
+  ,
+
+  // ── MOVE 14: White plays C4 [5,2] — defends C3 ───────────────────────
+  {
+    moveNum:14, player:'white', goCoord:'C4',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2]], lastMove:[5,2], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:55, confidenceDelta:0,
+    confidenceText:"White stabilises C3 — your pressure forced a defensive response",
+    whatHappened:"White plays C4 — reinforcing C3 before you can press further. White's group now has 5 liberties and is stable. Your pressure at B3 forced white to use a move defending — that's a small victory. Your B3 stone still needs reinforcing.",
+    risks:[
+      {rank:1,badge:'watch',text:"Your B3 stone has 3 liberties with white's stronger group nearby. Reinforce it now with B2."},
+      {rank:2,badge:'note',text:"White's C4/C3 group is stable but has no base or eyes in your territory. It can still be chased after you reinforce B3."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play B2 — reinforces B3, brings the group to 5 liberties, and claims bottom-left space. This move addresses risk #1 and gains territory simultaneously.",subNote:{type:'align',text:"Risk and opportunity align — B2 is the right move for both defensive and constructive reasons."}},
+      {rank:2,badge:'good',text:"After B2, chase white's C4/C3 group toward the centre. White is running with no base — chasing earns territory.",subNote:null}
+    ],
+    riskOppAlignment:true, bestMove:[7,1],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'},
+      {color:'rgba(255,160,0,0.08)',rect:'bottom-left-area',label:'contested',labelPos:'bl'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1]],libs:3,type:'amber'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[{from:[6,1],to:[7,1],color:'rgba(26,95,180,0.75)',label:'1. reinforce: B2'}],
+    oppArrows:[{from:[6,1],to:[7,1],color:'rgba(26,122,60,0.85)',label:'1. B2: best move'}]
+  },
+
+  // ── MOVE 15: Black plays B2 [7,1] ────────────────────────────────────
+  {
+    moveNum:15, player:'black', goCoord:'B2',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2]], lastMove:[7,1], lastMoveThreatening:false,
+    phase:'Mid-game', confidence:57, confidenceDelta:1,
+    confidenceText:"B2 consolidates — your bottom-left position is now solid",
+    whatHappened:"You reinforce B3 by playing B2 — now a connected group with 5 liberties. The bottom-left is becoming your territory. Step back and look at the whole board: you're strong in the top and building in the bottom-left. White has the bottom-right. The top-left area is still open — white may try to invade.",
+    risks:[
+      {rank:1,badge:'note',text:"White's C4/C3 group is stable but has no base — keep tracking it. Not threatening you right now."},
+      {rank:2,badge:'note',text:"All your groups are healthy. A5 still has 2 liberties — fine while white is distant."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"The top-left area is wide open — you have C7 there but no enclosure yet. White may try to invade at D6 or nearby. Be ready to respond locally if white enters your area.",subNote:null},
+      {rank:2,badge:'target',text:"White's E1 is still isolated with 3 liberties. After the top-left is settled, press it.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(60,180,80,0.07)',rect:'bottom-left-area',label:'your area forming',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 16: White plays D6 [3,3] — INVASION ─────────────────────────
+  {
+    moveNum:16, player:'white', goCoord:'D6',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3]], lastMove:[3,3], lastMoveThreatening:true,
+    phase:'Mid-game · invasion', confidence:49, confidenceDelta:-1,
+    confidenceText:"White's invasion shifts the balance — respond now to recover",
+    whatHappened:"White plays D6 — an invasion deep into your top-left area. White's stone is isolated with 4 liberties and no support nearby. But if white gets another move and establishes a living group here, your top-left territory shrinks significantly. This is urgent.",
+    risks:[
+      {rank:1,badge:'urgent',text:"White's D6 stone is inside your territory. It has 4 liberties now but is completely isolated — no white support nearby. Respond immediately. If white gets another move here, it may find room to make two eyes and live permanently inside your territory."},
+      {rank:2,badge:'note',text:"All your other groups are healthy — 4+ liberties. The invasion is the only urgent matter."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play C6 — press the invader from the left, reducing white to 3 liberties. You also connect toward your C7 stone, strengthening your whole top-left position.",subNote:{type:'align',text:"Risk and opportunity align perfectly — pressing the invader at C6 is both the most urgent response and the most constructive move available."}},
+      {rank:2,badge:'good',text:"After C6, continue pressing — D5 or E6 on the next move tightens the net further. White is running with no base.",subNote:null},
+      {rank:3,badge:'target',text:"White's E1 remains a target — but deal with the invasion first.",subNote:null}
+    ],
+    riskOppAlignment:true, bestMove:[3,2],
+    areas:[
+      {color:'rgba(60,180,80,0.07)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(220,60,60,0.08)',rect:'invasion-zone',label:'invaded!',labelPos:'invasion'},
+      {color:'rgba(60,180,80,0.07)',rect:'bottom-left-area',label:'your area',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2]],libs:4,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[3,3]],libs:4,type:'urgent'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[{from:[2,2],to:[3,3],color:'rgba(180,40,40,0.75)',label:'territory threatened'}],
+    oppArrows:[{from:[3,3],to:[3,2],color:'rgba(26,122,60,0.85)',label:'1. C6: press now'}]
+  },
+
+  // ── MOVE 17: Black plays C6 [3,2] ────────────────────────────────────
+  {
+    moveNum:17, player:'black', goCoord:'C6',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3]], lastMove:[3,2], lastMoveThreatening:false,
+    phase:'Mid-game · chasing the invader', confidence:53, confidenceDelta:1,
+    confidenceText:"Pressing the invader recovers ground — white is running",
+    whatHappened:"You press the invader at C6 — and in doing so you connect to your C7 stone. Two benefits at once: your group grows stronger (5 liberties) and white's invader is reduced to 3 liberties. White must now run or die.",
+    risks:[
+      {rank:1,badge:'watch',text:"White's D6 invader has 3 liberties — under real pressure. Continue pressing to prevent it finding room to make two eyes."},
+      {rank:2,badge:'note',text:"All your other groups are healthy. The chase is the only focus."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play D5 or E6 next — continue tightening the net around white's invader. White is running with no base and no eye space. Chase to shrink its room.",subNote:null},
+      {rank:2,badge:'good',text:"Your C7/C6 connected group now has 5 liberties and is strong — you can keep pressing without defensive concerns.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area recovering',labelPos:'top'},
+      {color:'rgba(255,160,0,0.08)',rect:'chase-zone',label:'chase zone',labelPos:'centre'},
+      {color:'rgba(60,180,80,0.07)',rect:'bottom-left-area',label:'your area',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2],[3,2]],libs:5,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[3,3]],libs:3,type:'amber'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[3,3],to:[4,3],color:'rgba(26,122,60,0.75)',label:'keep pressing'}]
+  },
+
+  // ── MOVE 18: White plays D5 [4,3] — escape ───────────────────────────
+  {
+    moveNum:18, player:'white', goCoord:'D5',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3]], lastMove:[4,3], lastMoveThreatening:false,
+    phase:'Mid-game · chasing', confidence:53, confidenceDelta:0,
+    confidenceText:"White escapes for now — still running with no base",
+    whatHappened:"White runs toward the centre — gaining liberties back to 5. This is what happens when an invasion isn't immediately surrounded: it can escape into open space. But white's group is deep in contested territory with no base. Continue the chase.",
+    risks:[
+      {rank:1,badge:'watch',text:"White's running group has 5 liberties — escaped pressure for now. But it has no base and no eye space. Keep chasing."},
+      {rank:2,badge:'note',text:"Your surrounding stones are all healthy. The chase continues on your terms."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play E5 — cut off white's escape route deeper into the centre. This also places a stone at the very centre of the board, giving you influence in all directions.",subNote:null},
+      {rank:2,badge:'good',text:"Chasing white gains you territory as white runs — every move white spends fleeing is a move you spend strengthening your position.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[4,4],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(255,160,0,0.08)',rect:'chase-zone',label:'chase continues',labelPos:'centre'},
+      {color:'rgba(60,180,80,0.07)',rect:'bottom-left-area',label:'your area',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2],[3,2]],libs:5,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[3,3],[4,3]],libs:5,type:'amber'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[3,3],to:[4,4],color:'rgba(26,122,60,0.85)',label:'1. E5: cut off'}]
+  },
+
+  // ── MOVE 19: Black plays E5 [4,4] ────────────────────────────────────
+  {
+    moveNum:19, player:'black', goCoord:'E5',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3]], lastMove:[4,4], lastMoveThreatening:false,
+    phase:'Late mid-game', confidence:58, confidenceDelta:1,
+    confidenceText:"Centre claimed — black back in control",
+    whatHappened:"You cut off white's escape at E5 — the centre of the board. White is now squeezed to 4 liberties with limited running room. E5 is the very centre of the board — a stone here gives you influence in all directions. The chase is working.",
+    risks:[
+      {rank:1,badge:'watch',text:"White's running group has 4 liberties — under pressure but not yet captured. It will try to escape further."},
+      {rank:2,badge:'note',text:"All your groups healthy. A5 still has 2 liberties — fine while white is far."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"White will try to escape or find threats elsewhere. Let white run for now — play A1 to claim the bottom-left corner. This secures significant territory regardless of where white goes.",subNote:null},
+      {rank:2,badge:'good',text:"After claiming the bottom-left corner, white's running group can be mopped up in the endgame.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(60,180,80,0.07)',rect:'bottom-left-area',label:'your area',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2],[3,2]],libs:5,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[4,4]],libs:3,type:'green'},
+      {stones:[[3,3],[4,3]],libs:4,type:'amber'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 20: White plays D2 [7,3] ────────────────────────────────────
+  {
+    moveNum:20, player:'white', goCoord:'D2',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3],[7,3]], lastMove:[7,3], lastMoveThreatening:false,
+    phase:'Late mid-game', confidence:58, confidenceDelta:0,
+    confidenceText:"White steps back — you're ahead and the position is stabilising",
+    whatHappened:"White abandons the running group and plays D2 — building territory in the bottom area instead. White's running group can survive for now, and the bottom territory is still valuable. The game is winding down.",
+    risks:[
+      {rank:1,badge:'note',text:"White's running group [3,3],[4,3] still has 4 liberties — alive for now. No immediate threat to your groups."},
+      {rank:2,badge:'note',text:"White D2 is building in the bottom — not threatening you directly."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play A1 — claim the bottom-left corner. A corner stone with two edge walls needs minimal support. This secures territory before white can reach it.",subNote:null},
+      {rank:2,badge:'good',text:"The board is approaching its end. Focus on claiming open territory rather than chasing white's running group.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[8,0],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(60,180,80,0.07)',rect:'bottom-left-area',label:'your area forming',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2],[3,2]],libs:5,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[4,0]],libs:2,type:'amber'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[4,4]],libs:3,type:'green'},
+      {stones:[[3,3],[4,3]],libs:4,type:'amber'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'},
+      {stones:[[3,6]],libs:4,type:'green'},
+      {stones:[[8,4]],libs:3,type:'target'},
+      {stones:[[4,8]],libs:2,type:'amber'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[7,1],to:[8,0],color:'rgba(26,122,60,0.85)',label:'1. A1: corner'}]
+  },
+
+  // ── MOVE 21: Black plays A1 [8,0] ────────────────────────────────────
+  {
+    moveNum:21, player:'black', goCoord:'A1',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4],[8,0]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3],[7,3]], lastMove:[8,0], lastMoveThreatening:false,
+    phase:'Endgame', confidence:61, confidenceDelta:1,
+    confidenceText:"Bottom-left corner secured — black comfortably ahead",
+    whatHappened:"You claim the bottom-left corner at A1. A corner stone with two edge walls is very efficient — it anchors your bottom-left territory. The board is nearly settled. White will secure the bottom-right.",
+    risks:[
+      {rank:1,badge:'note',text:"No urgent risks. The board is winding down — focus on claiming and closing territory."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play B1 next — closes your bottom-left fence and secures the territory there. Small but important endgame move.",subNote:null},
+      {rank:2,badge:'note',text:"The game is nearly over. Both players will soon pass. Make sure your territories are closed before passing.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(60,180,80,0.08)',rect:'bottom-left-corner',label:'your corner',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.07)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2],[3,2]],libs:5,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[8,0]],libs:2,type:'green'},
+      {stones:[[4,4]],libs:3,type:'green'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6]],libs:6,type:'green'}
+    ],
+    riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 22: White plays G2 [7,6] ────────────────────────────────────
+  {
+    moveNum:22, player:'white', goCoord:'G2',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4],[8,0]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3],[7,3],[7,6]], lastMove:[7,6], lastMoveThreatening:false,
+    phase:'Endgame', confidence:61, confidenceDelta:0,
+    confidenceText:"Both sides settling — your lead is holding",
+    whatHappened:"White secures the bottom-right at G2. Both players are now filling in and closing their territories. The broad picture is clear: your territory runs across the top and down the bottom-left; white holds the bottom-right. Play B1 to close your fence.",
+    risks:[
+      {rank:1,badge:'note',text:"No risks. The game is in its closing phase. Close your fences cleanly."}
+    ],
+    opportunities:[
+      {rank:1,badge:'best',text:"Play B1 — closes the bottom-left fence and secures that territory. Essential endgame move.",subNote:null}
+    ],
+    riskOppAlignment:false, bestMove:[8,1],
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(60,180,80,0.08)',rect:'bottom-left-area',label:'your area',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.08)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[
+      {stones:[[2,2],[3,2]],libs:5,type:'green'},
+      {stones:[[1,6],[2,6]],libs:5,type:'green'},
+      {stones:[[0,4]],libs:3,type:'green'},
+      {stones:[[6,4]],libs:4,type:'green'},
+      {stones:[[6,1],[7,1]],libs:5,type:'green'},
+      {stones:[[8,0]],libs:2,type:'green'},
+      {stones:[[4,4]],libs:3,type:'green'},
+      {stones:[[5,2],[6,2]],libs:5,type:'green'},
+      {stones:[[5,6],[6,6],[7,6]],libs:5,type:'green'}
+    ],
+    riskArrows:[],
+    oppArrows:[{from:[7,1],to:[8,1],color:'rgba(26,122,60,0.85)',label:'1. B1: close fence'}]
+  },
+
+  // ── MOVE 23: Black plays B1 [8,1] ────────────────────────────────────
+  {
+    moveNum:23, player:'black', goCoord:'B1',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4],[8,0],[8,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3],[7,3],[7,6]], lastMove:[8,1], lastMoveThreatening:false,
+    phase:'Endgame', confidence:62, confidenceDelta:1,
+    confidenceText:"Bottom-left fence closed — your position is solid",
+    whatHappened:"You close the bottom-left fence at B1. Your territory there is now secured. The board is nearly fully settled. White will play one more closing move, then both players will pass.",
+    risks:[{rank:1,badge:'note',text:"No risks. The game is moments from ending."}],
+    opportunities:[{rank:1,badge:'best',text:"The board is settled. When white plays their closing move, you can pass. The game is over.",subNote:null}],
+    riskOppAlignment:false, bestMove:null,
+    areas:[
+      {color:'rgba(60,180,80,0.09)',rect:'top-area',label:'your area',labelPos:'top'},
+      {color:'rgba(60,180,80,0.08)',rect:'bottom-left-area',label:'your area',labelPos:'bl'},
+      {color:'rgba(100,100,220,0.08)',rect:'bottom-right-quad',label:"white's area",labelPos:'br'}
+    ],
+    rings:[], riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 24: White plays H2 [7,7] ────────────────────────────────────
+  {
+    moveNum:24, player:'white', goCoord:'H2',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4],[8,0],[8,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3],[7,3],[7,6],[7,7]], lastMove:[7,7], lastMoveThreatening:false,
+    phase:'Endgame', confidence:62, confidenceDelta:0,
+    confidenceText:"Game nearly over — your lead is secure",
+    whatHappened:"White closes their bottom-right fence at H2. The board is fully settled. There are no more useful moves for either player — any stone placed in the opponent's territory would simply be captured, gaining nothing. You pass.",
+    risks:[{rank:1,badge:'note',text:"No risks. Pass on your next turn."}],
+    opportunities:[{rank:1,badge:'best',text:"Pass — the board is settled. Two consecutive passes end the game.",subNote:null}],
+    riskOppAlignment:false, bestMove:null,
+    areas:[], rings:[], riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 25: Black passes ─────────────────────────────────────────────
+  {
+    moveNum:25, player:'black', goCoord:'pass',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4],[8,0],[8,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3],[7,3],[7,6],[7,7]], lastMove:null, lastMoveThreatening:false,
+    phase:'Game over', confidence:62, confidenceDelta:0,
+    confidenceText:"You pass — if white also passes, the game ends",
+    whatHappened:"You pass. The board is settled — no more useful moves exist. Any stone you played in white's territory would just be captured. White will also pass.",
+    risks:[], opportunities:[], riskOppAlignment:false, bestMove:null,
+    areas:[], rings:[], riskArrows:[], oppArrows:[]
+  },
+
+  // ── MOVE 26: White passes — GAME ENDS ────────────────────────────────
+  {
+    moveNum:26, player:'white', goCoord:'pass',
+    blacks:[[2,2],[2,6],[0,4],[4,0],[1,6],[6,4],[6,1],[7,1],[3,2],[4,4],[8,0],[8,1]], whites:[[6,6],[6,2],[8,4],[4,8],[3,6],[5,6],[5,2],[3,3],[4,3],[7,3],[7,6],[7,7]], lastMove:null, lastMoveThreatening:false,
+    phase:'Game over', confidence:62, confidenceDelta:0,
+    confidenceText:"Game over — well played",
+    whatHappened:"White passes too. Two consecutive passes — the game is over. Time to count.",
+    risks:[], opportunities:[], riskOppAlignment:false, bestMove:null,
+    areas:[], rings:[], riskArrows:[], oppArrows:[]
+  }
 ];
 
 // ── Init ─────────────────────────────────────────────────────────────────────
