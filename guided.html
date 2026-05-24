@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Teacher — Guided Game</title>
+<style>
+  :root {
+    --bg:#faf9f6;--bg-card:#ffffff;--bg-secondary:#f4f2ee;
+    --bg-info:#eef4ff;--bg-success:#edfbf3;
+    --text:#1a1a18;--text-secondary:#5c5b57;--text-tertiary:#9c9b96;
+    --text-info:#1a5fb4;--text-success:#1a7a3c;--text-danger:#8b1a1a;
+    --border:rgba(0,0,0,0.1);--border-strong:rgba(0,0,0,0.18);
+    --radius:10px;--radius-lg:14px;
+    --font:'Georgia','Times New Roman',serif;
+    --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+  @media(prefers-color-scheme:dark){:root{
+    --bg:#1a1a18;--bg-card:#242420;--bg-secondary:#2c2c28;
+    --bg-info:#0d1f3c;--bg-success:#0d2a1a;
+    --text:#f0ede6;--text-secondary:#a8a49c;--text-tertiary:#6a6760;
+    --text-info:#7ab3f0;--text-success:#5abf7e;--text-danger:#e07070;
+    --border:rgba(255,255,255,0.1);--border-strong:rgba(255,255,255,0.18);
+  }}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-height:100vh;}
+  .shell{max-width:480px;margin:0 auto;padding:1rem;display:flex;flex-direction:column;gap:12px;font-family:var(--font-ui);}
+  .app-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:0.5px solid var(--border);}
+  .app-logo{font-family:var(--font);font-size:18px;color:var(--text);cursor:pointer;letter-spacing:-0.3px;}
+  .app-logo span{color:var(--text-tertiary);font-size:14px;margin-left:8px;font-family:var(--font-ui);}
+  .move-badge{font-size:12px;color:var(--text-secondary);background:var(--bg-secondary);padding:3px 10px;border-radius:20px;border:0.5px solid var(--border);}
+  .progress-wrap{display:flex;flex-direction:column;gap:4px;}
+  .progress-label{font-size:11px;color:var(--text-tertiary);}
+  .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--text-info);border-radius:2px;transition:width .3s;}
+  .settings-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+  .settings-label{font-size:11px;color:var(--text-tertiary);white-space:nowrap;}
+  .settings-select{font-size:11px;padding:4px 8px;border-radius:20px;border:0.5px solid var(--border-strong);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;font-family:var(--font-ui);}
+  .toggles{display:flex;gap:6px;flex-wrap:wrap;}
+  .toggle{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+  .toggle.on{background:var(--bg-info);color:var(--text-info);border-color:transparent;}
+  .board-wrap{display:flex;justify-content:center;}
+  canvas{border-radius:10px;max-width:100%;touch-action:none;}
+  .commentary{background:var(--bg-card);border:0.5px solid var(--border);border-radius:14px;padding:1rem;display:flex;flex-direction:column;gap:10px;}
+  .comm-label{font-size:11px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;}
+  .comm-text{font-size:13px;color:var(--text-secondary);line-height:1.7;}
+  .confidence-box{display:flex;flex-direction:column;gap:2px;padding:.6rem .85rem;background:var(--bg-secondary);border-radius:8px;}
+  .confidence-row{display:flex;align-items:center;justify-content:space-between;}
+  .confidence-label{font-size:11px;color:var(--text-tertiary);}
+  .confidence-value{font-size:14px;font-weight:500;}
+  .confidence-value.ahead{color:var(--text-success);}
+  .confidence-value.behind{color:var(--text-danger);}
+  .confidence-value.even{color:var(--text-secondary);}
+  .confidence-subtext{font-size:11px;color:var(--text-tertiary);font-style:italic;}
+  .confidence-explain{font-size:11px;color:var(--text-info);background:var(--bg-info);border-radius:6px;padding:4px 8px;}
+  .section-panel{display:flex;flex-direction:column;gap:9px;}
+  .section-heading{font-size:10px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;}
+  .notice-list{display:flex;flex-direction:column;gap:9px;}
+  .notice-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-secondary);line-height:1.55;}
+  .ni-left{display:flex;align-items:center;gap:5px;flex-shrink:0;padding-top:1px;}
+  .ni-rank{font-size:10px;font-weight:500;color:var(--text-tertiary);min-width:14px;}
+  .ni-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;white-space:nowrap;}
+  .ni-badge.urgent{background:#fff0f0;color:#8b1a1a;}
+  .ni-badge.watch{background:#fff8ec;color:#7a4f00;}
+  .ni-badge.note{background:var(--bg-secondary);color:var(--text-secondary);}
+  .ni-badge.best{background:var(--bg-info);color:var(--text-info);}
+  .ni-badge.good{background:var(--bg-success);color:var(--text-success);}
+  .ni-badge.target{background:#e1f5ee;color:#0f6e56;}
+  .ni-sub{font-size:11px;margin-top:3px;padding:3px 8px;border-radius:5px;line-height:1.5;}
+  .ni-sub.align{background:var(--bg-info);color:var(--text-info);}
+  .ni-sub.urgent{background:#fff0f0;color:#8b1a1a;}
+  .train-prompt{font-size:12px;color:var(--text-tertiary);font-style:italic;padding:.5rem 0;}
+  .reveal-btn{font-size:12px;padding:6px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);cursor:pointer;font-family:var(--font-ui);display:none;}
+  .section-divider{height:.5px;background:var(--border);margin:4px 0;}
+  .divider{height:.5px;background:var(--border);}
+  .btn-row{display:flex;gap:8px;}
+  .btn{font-size:13px;padding:7px 14px;border-radius:8px;border:0.5px solid var(--border-strong);background:var(--bg-card);color:var(--text);cursor:pointer;font-family:var(--font-ui);flex:1;text-align:center;-webkit-tap-highlight-color:transparent;}
+  .btn:active{opacity:.7;}
+  .btn.primary{background:var(--bg-info);color:var(--text-info);border-color:transparent;font-weight:500;}
+  .btn.opp-btn{background:var(--bg-success);color:var(--text-success);border-color:transparent;font-weight:500;}
+  .btn.risk-btn{background:#fff8ec;color:#7a4f00;border-color:transparent;font-weight:500;}
+  .results-card{background:var(--bg-card);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;}
+  .results-card h2{font-family:var(--font);font-size:20px;color:var(--text);}
+  .results-card p{font-size:14px;color:var(--text-secondary);line-height:1.7;}
+  .results-card strong{color:var(--text);font-weight:500;}
+  .results-card ul{padding-left:1rem;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--text-secondary);line-height:1.6;}
+  .app-footer{text-align:center;font-size:11px;color:var(--text-tertiary);padding-top:1rem;border-top:0.5px solid var(--border);}
+  .app-footer a{color:var(--text-tertiary);}
+  @media(max-width:480px){.shell{padding:.75rem;}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="app-header">
+    <div class="app-logo" onclick="window.location.href='index.html'">碁 Go Teacher <span>Guided game</span></div>
+    <div class="move-badge" id="move-badge">Move 1 of 26</div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-label" id="phase-label">Opening</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="settings-row">
+    <span class="settings-label">Commentary</span>
+    <select class="settings-select" id="commentary-select" onchange="applyCommentaryMode()">
+      <option value="guided-risks">Guided: risks first</option>
+      <option value="guided-opps">Guided: opportunities first</option>
+      <option value="train-opps">Train: find your own opportunities</option>
+      <option value="train-risks">Train: find your own risks</option>
+      <option value="unassisted">Unassisted — no commentary</option>
+    </select>
+    <select class="settings-select" id="toggles-default-select" onchange="applyTogglesDefault()">
+      <option value="smart">Smart toggle defaults</option>
+      <option value="all-on">All annotations on</option>
+      <option value="all-off">All annotations off</option>
+    </select>
+  </div>
+
+  <div class="toggles">
+    <button class="toggle on" id="t-areas" onclick="toggleLayer('areas',this)">Areas</button>
+    <button class="toggle on" id="t-rings" onclick="toggleLayer('rings',this)">Rings</button>
+    <button class="toggle on" id="t-arrows" onclick="toggleLayer('arrows',this)">Arrows</button>
+  </div>
+
+  <div class="board-wrap">
+    <canvas id="board" width="340" height="340"></canvas>
+  </div>
+
+  <div class="commentary" id="commentary">
+    <div class="comm-label">What just happened</div>
+    <div class="comm-text" id="what-happened"></div>
+    <div class="confidence-box" id="confidence-box" style="display:none">
+      <div class="confidence-explain" id="confidence-explain" style="display:none">Position confidence: 50% = balanced, above 50% = you're ahead on momentum.</div>
+      <div class="confidence-row">
+        <span class="confidence-label">Position confidence</span>
+        <span class="confidence-value" id="confidence-value"></span>
+      </div>
+      <div class="confidence-subtext" id="confidence-subtext"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="comm-label" id="before-label">Before you play — risks, in priority order</div>
+    <div class="section-panel" id="section-panel"></div>
+    <div class="divider"></div>
+    <div class="btn-row" id="btn-row">
+      <button class="btn opp-btn" id="toggle-view-btn" onclick="toggleView()" style="display:none"></button>
+      <button class="btn primary" id="next-btn" onclick="nextMove()">Next move →</button>
+    </div>
+  </div>
+
+  <div class="results-card" id="results-card" style="display:none">
+    <h2>Game over</h2>
+    <p><strong>Result: Black wins</strong><br>Your territory: ~14 points<br>White territory: ~10 points + 6.5 komi = 16.5<br>Black wins by approximately 1.5 points.</p>
+    <p>You played a complete, logical game of Go.</p>
+    <p><strong>What you did well:</strong></p>
+    <ul>
+      <li>Claimed corners and edges efficiently in the opening</li>
+      <li>Ignored white's pressure when your group was safe (move 10)</li>
+      <li>Responded immediately to the invasion (move 16)</li>
+      <li>Chased white's invader to gain territory (moves 17–19)</li>
+      <li>Closed your fences in the endgame</li>
+    </ul>
+    <p><strong>A note on komi:</strong> white receives 6.5 bonus points to compensate for black moving first. In your next game, pushing for 2–3 more territory points will give you a more comfortable margin.</p>
+    <div class="btn-row">
+      <button class="btn" onclick="window.location.reload()">Watch again</button>
+      <button class="btn primary" onclick="window.location.href='index.html'">Back to home</button>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Go Teacher · <a href="index.html">Home</a> · <a href="glossary.html">Glossary</a> · <a href="https://online-go.com" target="_blank">Play on OGS</a>
+  </footer>
+
+</div>
+<script>
+// ── Constants ────────────────────────────────────────────────────────────────
+const N=9, PAD=28, AXIS=16;
+let CELL, canvas, ctx;
+const COLS=['A','B','C','D','E','F','G','H','J'];
+
+function px(c){ return AXIS+PAD+c*CELL; }
+function py(r){ return PAD+r*CELL; }
+
+function rRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let currentMoveIdx = 0;
+let toggleState = {areas:true, rings:true, arrows:true};
+let layerOrder = ['areas','rings','arrows'];
+let hintShown = false;
+let showingOpps = false;
+let commentaryMode = 'guided-risks';
+let moveMade = false;
+let confidenceExplained = false;
+
+// ── Zone rects ───────────────────────────────────────────────────────────────
+const ZONE_RECTS = {
+  'top-area':          {r1:0,c1:0,r2:2,c2:8},
+  'top-strip':         {r1:0,c1:0,r2:1,c2:8},
+  'bottom-strip':      {r1:7,c1:0,r2:8,c2:8},
+  'top-left-quad':     {r1:0,c1:0,r2:4,c2:3},
+  'bottom-right-quad': {r1:4,c1:4,r2:8,c2:8},
+  'bottom-left-area':  {r1:5,c1:0,r2:8,c2:3},
+  'bottom-left-corner':{r1:6,c1:0,r2:8,c2:2},
+  'invasion-zone':     {r1:2,c1:2,r2:4,c2:5},
+  'chase-zone':        {r1:2,c1:2,r2:5,c2:6},
+  'tl-corner':         {r1:0,c1:0,r2:3,c2:3},
+  'br-corner':         {r1:5,c1:5,r2:8,c2:8},
+  'chase-zone-left':   {r1:2,c1:1,r2:5,c2:4},
+  'bottom-left-chase': {r1:4,c1:0,r2:7,c2:3}
+};
+
+function zoneToCanvas(rect){
+  if(typeof rect==='string') rect=ZONE_RECTS[rect];
+  if(!rect) return null;
+  return {
+    x: px(rect.c1)-CELL/2,
+    y: py(rect.r1)-CELL/2,
+    w: (rect.c2-rect.c1+1)*CELL,
+    h: (rect.r2-rect.r1+1)*CELL
+  };
+}
+
+function labelXY(pos, zr){
+  const c=zoneToCanvas(zr);
+  if(!c) return {x:0,y:0};
+  switch(pos){
+    case 'tl': return {x:c.x+4, y:c.y+4};
+    case 'tr': return {x:c.x+c.w-4, y:c.y+4};
+    case 'bl': return {x:c.x+4, y:c.y+c.h-14};
+    case 'br': return {x:c.x+c.w-4, y:c.y+c.h-14};
+    case 'top': return {x:c.x+c.w/2, y:c.y+4};
+    case 'bottom': return {x:c.x+c.w/2, y:c.y+c.h-14};
+    case 'centre': return {x:c.x+c.w/2, y:c.y+c.h/2};
+    case 'invasion': return {x:c.x+6, y:c.y+6};
+    default: return {x:c.x+4, y:c.y+4};
+  }
+}
+
+// ── Draw functions ───────────────────────────────────────────────────────────
+function drawBoardBase(){
+  ctx.fillStyle='#DCB97A'; ctx.fillRect(AXIS,0,340,340);
+  ctx.fillStyle='#C8A660'; ctx.fillRect(0,0,AXIS,340);
+  ctx.strokeStyle='#8B6914'; ctx.lineWidth=0.8;
+  for(let i=0;i<N;i++){
+    ctx.beginPath(); ctx.moveTo(px(0),py(i)); ctx.lineTo(px(N-1),py(i)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px(i),py(0)); ctx.lineTo(px(i),py(N-1)); ctx.stroke();
+  }
+  ctx.fillStyle='#8B6914';
+  for(const[r,c]of[[2,2],[2,6],[4,4],[6,2],[6,6]]){
+    ctx.beginPath(); ctx.arc(px(c),py(r),3,0,Math.PI*2); ctx.fill();
+  }
+  ctx.font='9px sans-serif'; ctx.fillStyle='rgba(100,75,10,0.75)';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for(let c=0;c<N;c++) ctx.fillText(COLS[c],px(c),py(N-1)+5);
+  ctx.textBaseline='middle';
+  for(let r=0;r<N;r++) ctx.fillText(String(9-r),AXIS/2,py(r));
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+}
+
+function drawStones(blacks, whites, lastMove, lastMoveThreatening){
+  for(const[r,c]of blacks){
+    ctx.fillStyle='#111';
+    ctx.beginPath(); ctx.arc(px(c),py(r),CELL*0.44,0,Math.PI*2); ctx.fill();
+  }
+  for(const[r,c]of whites){
+    ctx.fillStyle='#f2f0ec';
+    ctx.beginPath(); ctx.arc(px(c),py(r),CELL*0.44,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.arc(px(c),py(r),CELL*0.44,0,Math.PI*2); ctx.stroke();
+  }
+  if(lastMove){
+    const[lr,lc]=lastMove;
+    ctx.fillStyle=lastMoveThreatening?'rgba(180,40,40,0.75)':'rgba(60,60,180,0.65)';
+    ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('★',px(lc),py(lr)-CELL*0.58);
+    ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  }
+}
+
+function drawAreas(areas){
+  if(!toggleState.areas||!areas) return;
+  for(const a of areas){
+    if(a.rect==='corners'){
+      ctx.fillStyle=a.color;
+      for(const[r1,c1,r2,c2]of[[0,0,2,2],[0,6,2,8],[6,0,8,2],[6,6,8,8]]){
+        ctx.fillRect(px(c1)-CELL/2,py(r1)-CELL/2,(c2-c1+1)*CELL,(r2-r1+1)*CELL);
+      }
+    } else if(a.rect==='edges'){
+      ctx.fillStyle=a.color;
+      for(const[r1,c1,r2,c2]of[[0,3,1,5],[7,3,8,5],[2,0,6,1],[2,8,6,8]]){
+        ctx.fillRect(px(c1)-CELL/2,py(r1)-CELL/2,(c2-c1+1)*CELL,(r2-r1+1)*CELL);
+      }
+    } else if(a.rect==='centre'){
+      ctx.fillStyle=a.color;
+      ctx.fillRect(px(2)-CELL/2,py(2)-CELL/2,5*CELL,5*CELL);
+    } else {
+      const zr=typeof a.rect==='string'?ZONE_RECTS[a.rect]:a.rect;
+      if(!zr) continue;
+      const c=zoneToCanvas(zr);
+      ctx.fillStyle=a.color;
+      ctx.fillRect(c.x,c.y,c.w,c.h);
+      if(a.label){
+        const lp=labelXY(a.labelPos,zr);
+        ctx.font='9px sans-serif'; ctx.fillStyle=a.color.replace(/[\d.]+\)$/,'0.7)');
+        ctx.textAlign=a.labelPos&&a.labelPos.includes('r')?'right':'left';
+        ctx.textBaseline='top'; ctx.fillText(a.label,lp.x,lp.y);
+        ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+      }
+    }
+  }
+}
+
+function libBadge(r,c,libs,color){
+  const bx=px(c)+CELL*0.3, by=py(r)-CELL*0.5;
+  ctx.fillStyle=color; rRect(bx-1,by-7,17,12,3); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 8px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(libs,bx+7,by+1); ctx.textAlign='left';
+}
+
+function drawRings(rings){
+  if(!toggleState.rings||!rings) return;
+  for(const g of rings){
+    if(g.type==='target'&&!showingOpps) continue;
+    const colors={
+      green:'rgba(40,160,70,0.9)',
+      amber:'rgba(210,130,0,0.9)',
+      urgent:'rgba(200,40,40,0.9)',
+      target:'rgba(15,110,86,0.85)'
+    };
+    const color=colors[g.type]||colors.green;
+    if(g.type==='target') ctx.setLineDash([4,3]);
+    ctx.lineWidth=g.type==='target'?2:2.5;
+    for(const[r,c]of g.stones){
+      ctx.strokeStyle=color;
+      ctx.beginPath(); ctx.arc(px(c),py(r),CELL*0.52,0,Math.PI*2); ctx.stroke();
+    }
+    ctx.setLineDash([]); ctx.lineWidth=0.8;
+    if(g.type==='urgent'){
+      const[r,c]=g.stones[0];
+      ctx.strokeStyle='rgba(200,40,40,0.25)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(px(c),py(r),CELL*0.68,0,Math.PI*2); ctx.stroke();
+      ctx.lineWidth=0.8;
+      ctx.fillStyle='rgba(200,40,40,0.9)';
+      rRect(px(c)-20,py(r)+CELL*0.56,40,13,3); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 8px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('URGENT',px(c),py(r)+CELL*0.56+9); ctx.textAlign='left';
+    }
+    if(g.libs!=null) libBadge(g.stones[0][0],g.stones[0][1],g.libs,color);
+  }
+}
+
+function drawArrowLine(r1,c1,r2,c2,color,label){
+  const x1=px(c1),y1=py(r1),x2=px(c2),y2=py(r2);
+  const ang=Math.atan2(y2-y1,x2-x1);
+  const off=CELL*0.56;
+  const sx=x1+Math.cos(ang)*off, sy=y1+Math.sin(ang)*off;
+  const ex=x2-Math.cos(ang)*off, ey=y2-Math.sin(ang)*off;
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke();
+  ctx.setLineDash([]);
+  const hl=7;
+  ctx.beginPath(); ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-hl*Math.cos(ang-0.4),ey-hl*Math.sin(ang-0.4));
+  ctx.lineTo(ex-hl*Math.cos(ang+0.4),ey-hl*Math.sin(ang+0.4));
+  ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+  if(label){
+    const mx=(sx+ex)/2, my=(sy+ey)/2;
+    const lw=label.length*5+10;
+    ctx.fillStyle='rgba(255,255,255,0.93)'; rRect(mx-lw/2,my-8,lw,13,3); ctx.fill();
+    ctx.fillStyle=color; ctx.font='8px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(label,mx,my+2); ctx.textAlign='left';
+  }
+  ctx.lineWidth=0.8;
+}
+
+function drawArrows(riskArrows, oppArrows){
+  if(!toggleState.arrows) return;
+  const arrows=showingOpps?oppArrows:riskArrows;
+  if(!arrows) return;
+  for(const a of arrows) drawArrowLine(a.from[0],a.from[1],a.to[0],a.to[1],a.color,a.label);
+}
+
+function drawHint(bestMove){
+  if(!hintShown||!bestMove) return;
+  const[r,c]=bestMove;
+  ctx.strokeStyle='rgba(200,160,0,0.95)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(px(c),py(r),CELL*0.52,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle='rgba(200,160,0,0.28)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(px(c),py(r),CELL*0.65,0,Math.PI*2); ctx.stroke();
+  ctx.lineWidth=0.8;
+  ctx.fillStyle='rgba(160,120,0,0.9)'; ctx.font='bold 8px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('best move',px(c),py(r)+CELL*0.82); ctx.textAlign='left';
+}
+
+function draw(move){
+  ctx.clearRect(0,0,340,340);
+  drawBoardBase();
+  drawStones(move.blacks, move.whites, move.lastMove, move.lastMoveThreatening);
+  for(const name of layerOrder){
+    if(name==='areas') drawAreas(move.areas);
+    else if(name==='rings') drawRings(move.rings);
+    else if(name==='arrows') drawArrows(move.riskArrows, move.oppArrows);
+  }
+  drawHint(move.bestMove);
+}
+
+// ── Commentary rendering ─────────────────────────────────────────────────────
+function renderConfidence(move){
+  const box=document.getElementById('confidence-box');
+  const val=document.getElementById('confidence-value');
+  const sub=document.getElementById('confidence-subtext');
+  const explain=document.getElementById('confidence-explain');
+  if(move.confidence==null){ box.style.display='none'; return; }
+  box.style.display='flex';
+  const pct=move.confidence;
+  const delta=move.confidenceDelta;
+  const arrow=delta>0?'↑':delta<0?'↓':'→';
+  val.textContent=pct+'%  '+arrow;
+  val.className='confidence-value '+(pct>=52?'ahead':pct<=48?'behind':'even');
+  sub.textContent=move.confidenceText||'';
+  if(!confidenceExplained){
+    explain.style.display='block';
+    confidenceExplained=true;
+    try{localStorage.setItem('go-guided-conf-explained','1');}catch(e){}
+  } else {
+    explain.style.display='none';
+  }
+}
+
+function buildNoticeItem(item, alignNote){
+  const div=document.createElement('div');
+  div.className='notice-item';
+  const left=document.createElement('div');
+  left.className='ni-left';
+  left.innerHTML='<span class="ni-rank">'+item.rank+'.</span><span class="ni-badge '+item.badge+'">'+(
+    {urgent:'Urgent',watch:'Watch',note:'Note',best:'Best move',good:'Good',target:'Target'}[item.badge]||item.badge
+  )+'</span>';
+  const text=document.createElement('div');
+  text.innerHTML=item.text;
+  if(alignNote){
+    const sub=document.createElement('div');
+    sub.className='ni-sub align';
+    sub.innerHTML='✓ '+alignNote;
+    text.appendChild(sub);
+  } else if(item.subNote){
+    const sub=document.createElement('div');
+    sub.className='ni-sub '+(item.subNote.type||'align');
+    sub.innerHTML=item.subNote.text;
+    text.appendChild(sub);
+  }
+  div.appendChild(left); div.appendChild(text);
+  return div;
+}
+
+function buildRisksHTML(move){
+  const wrap=document.createElement('div');
+  wrap.className='section-panel';
+  const h=document.createElement('div');
+  h.className='section-heading'; h.textContent='Risks — in priority order';
+  wrap.appendChild(h);
+  const list=document.createElement('div');
+  list.className='notice-list';
+  for(const item of (move.risks||[])){
+    const alignNote=(item.rank===1&&move.riskOppAlignment)?
+      'Risk and opportunity align — see opportunities view.':null;
+    list.appendChild(buildNoticeItem(item,alignNote));
+  }
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function buildOppsHTML(move){
+  const wrap=document.createElement('div');
+  wrap.className='section-panel';
+  const h=document.createElement('div');
+  h.className='section-heading'; h.textContent='Opportunities — in priority order';
+  wrap.appendChild(h);
+  const list=document.createElement('div');
+  list.className='notice-list';
+  for(const item of (move.opportunities||[])){
+    const alignNote=(item.rank===1&&move.riskOppAlignment)?
+      'Risk and opportunity align — this move is both the most prudent and the most constructive.':null;
+    list.appendChild(buildNoticeItem(item,alignNote));
+  }
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function renderCommentary(move){
+  document.getElementById('what-happened').textContent=move.whatHappened||'';
+  renderConfidence(move);
+  const panel=document.getElementById('section-panel');
+  const beforeLabel=document.getElementById('before-label');
+  const toggleBtn=document.getElementById('toggle-view-btn');
+  panel.innerHTML='';
+  toggleBtn.style.display='none';
+  moveMade=false;
+
+  if(commentaryMode==='unassisted'){
+    beforeLabel.style.display='none';
+    panel.style.display='none';
+    return;
+  }
+  beforeLabel.style.display='block';
+  panel.style.display='flex';
+
+  if(commentaryMode==='guided-risks'||commentaryMode==='guided-opps'){
+    if(commentaryMode==='guided-risks') showingOpps=false;
+    else showingOpps=true;
+    renderToggleView(move);
+    toggleBtn.style.display='block';
+    updateToggleBtn();
+  } else if(commentaryMode==='train-opps'){
+    beforeLabel.textContent='Before you play — risks, in priority order';
+    panel.appendChild(buildRisksHTML(move));
+    const prompt=document.createElement('div');
+    prompt.className='train-prompt'; prompt.textContent='Can you see the opportunities? Make your move, then check.';
+    panel.appendChild(prompt);
+    const revealBtn=document.createElement('button');
+    revealBtn.className='reveal-btn'; revealBtn.id='reveal-btn';
+    revealBtn.textContent='Show opportunities I missed →';
+    revealBtn.onclick=()=>{ panel.appendChild(buildOppsHTML(move)); revealBtn.style.display='none'; };
+    panel.appendChild(revealBtn);
+  } else if(commentaryMode==='train-risks'){
+    beforeLabel.textContent='Before you play — opportunities, in priority order';
+    panel.appendChild(buildOppsHTML(move));
+    const prompt=document.createElement('div');
+    prompt.className='train-prompt'; prompt.textContent='Can you spot the risks? Make your move, then check.';
+    panel.appendChild(prompt);
+    const revealBtn=document.createElement('button');
+    revealBtn.className='reveal-btn'; revealBtn.id='reveal-btn';
+    revealBtn.textContent='Show risks I missed →';
+    revealBtn.onclick=()=>{ panel.appendChild(buildRisksHTML(move)); revealBtn.style.display='none'; };
+    panel.appendChild(revealBtn);
+  }
+}
+
+function renderToggleView(move){
+  const panel=document.getElementById('section-panel');
+  const beforeLabel=document.getElementById('before-label');
+  panel.innerHTML='';
+  if(showingOpps){
+    beforeLabel.textContent='Before you play — opportunities, in priority order';
+    panel.appendChild(buildOppsHTML(move));
+  } else {
+    beforeLabel.textContent='Before you play — risks, in priority order';
+    panel.appendChild(buildRisksHTML(move));
+  }
+}
+
+function updateToggleBtn(){
+  const btn=document.getElementById('toggle-view-btn');
+  if(showingOpps){
+    btn.className='btn risk-btn'; btn.textContent='Show risks →';
+  } else {
+    btn.className='btn opp-btn'; btn.textContent='Show opportunities →';
+  }
+}
+
+window.toggleView=function(){
+  showingOpps=!showingOpps;
+  renderToggleView(MOVES[currentMoveIdx]);
+  updateToggleBtn();
+  draw(MOVES[currentMoveIdx]);
+};
+
+// ── Settings and toggles ─────────────────────────────────────────────────────
+function applyCommentaryMode(){
+  commentaryMode=document.getElementById('commentary-select').value;
+  try{localStorage.setItem('go-guided-commentary',commentaryMode);}catch(e){}
+  renderCommentary(MOVES[currentMoveIdx]);
+  draw(MOVES[currentMoveIdx]);
+}
+
+function applyTogglesDefault(){
+  const val=document.getElementById('toggles-default-select').value;
+  try{localStorage.setItem('go-guided-toggles-default',val);}catch(e){}
+  initToggles(val);
+}
+
+function initToggles(val){
+  const smart={
+    'unassisted':   {areas:false,rings:false,arrows:false},
+    'train-opps':   {areas:true, rings:true, arrows:false},
+    'train-risks':  {areas:true, rings:true, arrows:false},
+    'guided-risks': {areas:true, rings:true, arrows:true},
+    'guided-opps':  {areas:true, rings:true, arrows:true}
+  };
+  let state;
+  if(val==='all-on')       state={areas:true,rings:true,arrows:true};
+  else if(val==='all-off') state={areas:false,rings:false,arrows:false};
+  else                     state=smart[commentaryMode]||{areas:true,rings:true,arrows:true};
+  toggleState={...state};
+  layerOrder=['areas','rings','arrows'];
+  ['areas','rings','arrows'].forEach(name=>{
+    const btn=document.getElementById('t-'+name);
+    if(btn) btn.classList.toggle('on',toggleState[name]);
+  });
+  draw(MOVES[currentMoveIdx]);
+}
+
+window.toggleLayer=function(name,btn){
+  toggleState[name]=!toggleState[name];
+  btn.classList.toggle('on',toggleState[name]);
+  layerOrder=layerOrder.filter(l=>l!==name);
+  layerOrder.push(name);
+  draw(MOVES[currentMoveIdx]);
+};
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function loadMove(idx){
+  currentMoveIdx=idx;
+  hintShown=false;
+  const move=MOVES[idx];
+  const total=MOVES.length-1;
+  document.getElementById('move-badge').textContent=
+    move.goCoord==='pass'?'Pass':'Move '+move.moveNum+' of '+total;
+  document.getElementById('phase-label').textContent=move.phase||'';
+  document.getElementById('progress-fill').style.width=(idx/total*100)+'%';
+  const isEnd=(idx>=total);
+  document.getElementById('commentary').style.display=isEnd?'none':'flex';
+  document.getElementById('results-card').style.display=isEnd?'flex':'none';
+  if(!isEnd) renderCommentary(move);
+  if(commentaryMode==='guided-risks') showingOpps=false;
+  else if(commentaryMode==='guided-opps') showingOpps=true;
+  const revealBtn=document.getElementById('reveal-btn');
+  if(revealBtn) revealBtn.style.display='none';
+  draw(move);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+window.nextMove=function(){
+  const revealBtn=document.getElementById('reveal-btn');
+  if(revealBtn&&!moveMade){ moveMade=true; revealBtn.style.display='block'; }
+  if(currentMoveIdx<MOVES.length-1) loadMove(currentMoveIdx+1);
+};
+
+// ── MOVES data ───────────────────────────────────────────────────────────────
+// PLACEHOLDER — full MOVES data added in Phase 2
+const MOVES = [
+  {
+    moveNum:0, player:null, goCoord:null,
+    blacks:[], whites:[], lastMove:null, lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"Welcome. You're playing black — black always goes first. The board is empty. Where do you start?",
+    risks:[{rank:1,badge:'note',text:'No risks yet — the board is empty.'}],
+    opportunities:[{rank:1,badge:'best',text:'Play C7 — the top-left corner area. Corners are the most efficient start.'}],
+    riskOppAlignment:false, bestMove:[2,2],
+    areas:[
+      {color:'rgba(60,160,60,0.13)',rect:'corners',label:'corners first',labelPos:'tl'},
+      {color:'rgba(255,160,0,0.10)',rect:'edges',label:'edges next',labelPos:'top'},
+      {color:'rgba(220,60,60,0.08)',rect:'centre',label:'centre last',labelPos:'centre'}
+    ],
+    rings:[], riskArrows:[],
+    oppArrows:[{from:[4,4],to:[2,2],color:'rgba(26,122,60,0.7)',label:'start here'}]
+  },
+  {
+    moveNum:1, player:'black', goCoord:'C7',
+    blacks:[[2,2]], whites:[], lastMove:[2,2], lastMoveThreatening:false,
+    phase:'Opening', confidence:null, confidenceDelta:0, confidenceText:null,
+    whatHappened:"Black plays C7 — the top-left corner. Corners are the most efficient place to build territory. White responds.",
+    risks:[{rank:1,badge:'note',text:'Your C7 stone is safe with 4 liberties.'}],
+    opportunities:[{rank:1,badge:'good',text:'After white responds, claim another corner — G7 is natural.'}],
+    riskOppAlignment:false, bestMove:null,
+    areas:[], rings:[{stones:[[2,2]],libs:4,type:'green'}],
+    riskArrows:[], oppArrows:[]
+  }
+];
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+canvas=document.getElementById('board');
+ctx=canvas.getContext('2d');
+CELL=(340-AXIS-PAD*2)/(N-1);
+
+try{
+  const cm=localStorage.getItem('go-guided-commentary');
+  if(cm) commentaryMode=cm;
+  const ce=localStorage.getItem('go-guided-conf-explained');
+  if(ce) confidenceExplained=true;
+}catch(e){}
+document.getElementById('commentary-select').value=commentaryMode;
+
+const togglesDefault=(()=>{
+  try{return localStorage.getItem('go-guided-toggles-default')||'smart';}catch(e){return 'smart';}
+})();
+document.getElementById('toggles-default-select').value=togglesDefault;
+initToggles(togglesDefault);
+
+loadMove(0);
+</script>
+</body>
+</html>
