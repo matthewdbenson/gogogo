@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Teacher — Why Go?</title>
+<style>
+  :root {
+    --bg:#faf9f6;--bg-card:#ffffff;--bg-secondary:#f4f2ee;
+    --text:#1a1a18;--text-secondary:#5c5b57;--text-tertiary:#9c9b96;
+    --text-info:#1a5fb4;--text-success:#1a7a3c;
+    --border:rgba(0,0,0,0.1);--border-strong:rgba(0,0,0,0.18);
+    --radius:10px;--radius-lg:14px;
+    --font:'Georgia','Times New Roman',serif;
+    --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+  @media(prefers-color-scheme:dark){:root{
+    --bg:#1a1a18;--bg-card:#242420;--bg-secondary:#2c2c28;
+    --text:#f0ede6;--text-secondary:#a8a49c;--text-tertiary:#6a6760;
+    --text-info:#7ab3f0;--text-success:#6ecf8e;
+    --border:rgba(255,255,255,0.1);--border-strong:rgba(255,255,255,0.18);
+  }}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:16px;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-height:100vh;}
+  .app-shell{max-width:640px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+  .app-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:0.5px solid var(--border);margin-bottom:2rem;}
+  .app-logo{font-family:var(--font);font-size:18px;color:var(--text);cursor:pointer;letter-spacing:-0.3px;}
+  .app-logo span{color:var(--text-tertiary);font-weight:400;font-size:14px;margin-left:8px;font-family:var(--font-ui);}
+  .header-path{font-size:12px;color:var(--text-tertiary);background:var(--bg-secondary);padding:3px 10px;border-radius:20px;border:0.5px solid var(--border);}
+
+  .hero{display:flex;flex-direction:column;gap:1rem;margin-bottom:2.5rem;}
+  .hero-eyebrow{font-size:12px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.08em;}
+  .hero-title{font-family:var(--font);font-size:32px;color:var(--text);line-height:1.2;letter-spacing:-0.5px;}
+  .hero-subtitle{font-size:16px;color:var(--text-secondary);line-height:1.75;max-width:520px;}
+
+  .section{display:flex;flex-direction:column;gap:.85rem;margin-bottom:2.25rem;}
+  .section-title{font-family:var(--font);font-size:20px;color:var(--text);line-height:1.3;letter-spacing:-0.2px;}
+  .section-body{font-size:14px;color:var(--text-secondary);line-height:1.8;}
+  .section-body p+p{margin-top:.75rem;}
+  .section-body strong{color:var(--text);font-weight:500;}
+
+  .pull-quote{border-left:3px solid var(--border-strong);padding:.75rem 1rem;margin:1.5rem 0;display:flex;flex-direction:column;gap:.35rem;}
+  .pull-quote-text{font-family:var(--font);font-size:16px;color:var(--text);line-height:1.6;font-style:italic;}
+  .pull-quote-attr{font-size:12px;color:var(--text-tertiary);}
+
+  .habits{display:flex;flex-direction:column;gap:.75rem;margin:.5rem 0;}
+  .habit{display:flex;gap:.85rem;align-items:flex-start;}
+  .habit-dot{width:6px;height:6px;border-radius:50%;background:var(--text-tertiary);flex-shrink:0;margin-top:.55rem;}
+  .habit-text{font-size:14px;color:var(--text-secondary);line-height:1.7;}
+  .habit-text strong{color:var(--text);font-weight:500;}
+
+  .divider{height:0.5px;background:var(--border);margin:2rem 0;}
+
+  .cta{background:var(--bg-card);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;display:flex;flex-direction:column;gap:1rem;text-align:center;align-items:center;}
+  .cta-text{font-size:14px;color:var(--text-secondary);line-height:1.7;max-width:400px;}
+  .cta-text strong{color:var(--text);font-weight:500;}
+  .cta-btn{font-size:14px;font-weight:500;padding:9px 20px;border-radius:var(--radius);background:var(--bg-secondary);color:var(--text);border:0.5px solid var(--border-strong);cursor:pointer;font-family:var(--font-ui);text-decoration:none;display:inline-block;}
+  .cta-btn:hover{background:var(--border);}
+  .cta-btn.primary{background:#eef4ff;color:#1a5fb4;border-color:transparent;}
+
+  .app-footer{text-align:center;font-size:11px;color:var(--text-tertiary);padding-top:1rem;border-top:0.5px solid var(--border);margin-top:2rem;}
+  .app-footer a{color:var(--text-tertiary);}
+
+  @media(max-width:480px){
+    .hero-title{font-size:26px;}
+    .app-shell{padding:1rem .75rem 3rem;}
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="app-header">
+    <div class="app-logo" onclick="window.location.href='index.html'">碁 Go Teacher <span>Why Go?</span></div>
+    <div class="header-path">About the game</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">The world's oldest strategy game</div>
+    <h1 class="hero-title">Why Go?</h1>
+    <p class="hero-subtitle">Go has been played for over 2,500 years without its rules changing. It takes minutes to learn and a lifetime to explore. Here is why that matters.</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Deeper than any other game</h2>
+    <div class="section-body">
+      <p>Go has five rules. You can read them in under ten minutes. And yet the number of possible Go games exceeds the number of atoms in the observable universe — by a margin so large it defies intuition.</p>
+      <p>This isn't a curiosity. It means the game never runs out. No matter how long you play, you will encounter positions you haven't seen before. Every game is genuinely new.</p>
+      <p>Chess was largely solved by computers in the late 1990s. Go resisted computer mastery until 2016, when DeepMind's AlphaGo defeated the world champion — and even then, the achievement required a fundamental breakthrough in artificial intelligence. The game is that deep.</p>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <div class="pull-quote-text">"Go is to Western chess what philosophy is to checkers."</div>
+    <div class="pull-quote-attr">— attributed to various Go players</div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">It teaches you to think differently</h2>
+    <div class="section-body">
+      <p>Go is not primarily a game of calculation. The board is too large, the possibilities too numerous. Strong players don't calculate every variation — they develop <strong>judgement</strong>. They learn to read a position intuitively, to feel which areas matter and which don't, to sense when a group is in trouble before the numbers confirm it.</p>
+      <p>This is a different kind of thinking from most games, and from most things we practise in daily life. It is closer to the thinking required in strategy, leadership, and complex decision-making: incomplete information, competing priorities, the need to act without certainty.</p>
+      <p>Players who study Go seriously often report that it changes how they approach problems generally — not because Go is a metaphor for life, but because it trains specific cognitive habits:</p>
+    </div>
+    <div class="habits">
+      <div class="habit"><div class="habit-dot"></div><div class="habit-text"><strong>Seeing the whole board</strong> — not just the local situation, but the broader context. A crisis in one corner doesn't mean you ignore the rest of the board.</div></div>
+      <div class="habit"><div class="habit-dot"></div><div class="habit-text"><strong>Distinguishing urgent from important</strong> — some threats must be answered immediately; others can wait. Learning which is which is most of the game.</div></div>
+      <div class="habit"><div class="habit-dot"></div><div class="habit-text"><strong>Playing your own plan</strong> — not just reacting to your opponent, but maintaining your own agenda. The best players respond to threats without losing their direction.</div></div>
+      <div class="habit"><div class="habit-dot"></div><div class="habit-text"><strong>Accepting local loss for global gain</strong> — sometimes the right move is to sacrifice something small to win something larger. Go makes this concrete and learnable.</div></div>
+    </div>
+    <div class="section-body">
+      <p style="margin-top:.5rem;">These aren't lessons that are taught explicitly. They emerge from playing the game.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <h2 class="section-title">Meditative, not relaxing</h2>
+    <div class="section-body">
+      <p>A game of Go requires presence. There is no clock ticking down by default, no artificial urgency. You sit with the board, you think, you place a stone.</p>
+      <p>Many players describe Go as one of the few activities in modern life that genuinely quiets the mind — not because it's relaxing, but because it demands your full attention. There is no room for distraction. For the duration of a game, everything else falls away.</p>
+      <p>The physical experience matters too. The weight of a stone in your hand. The sound it makes on the board. The pattern of black and white slowly filling the grid. Go has an aesthetic dimension that most digital games have lost.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">A game of respect</h2>
+    <div class="section-body">
+      <p>Go has a long tradition of courtesy. Players acknowledge each other before the game begins and review it together afterward — pointing out missed opportunities on both sides, without ego. The goal isn't just to win but to understand.</p>
+      <p>Online Go communities tend to be unusually welcoming to beginners. The handicap system is so well-developed that a complete novice can play a genuinely competitive game against a much stronger player — neither side is wasting their time.</p>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <div class="pull-quote-text">"In the middle of difficulty lies opportunity."</div>
+    <div class="pull-quote-attr">— Albert Einstein, who was a keen Go player</div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">It scales with you</h2>
+    <div class="section-body">
+      <p>Go has a ranking system that spans from complete beginner to world champion. Progress is gradual and visible — you move through ranks as you improve, and each rank represents a genuine step in understanding. There is always a next thing to learn.</p>
+      <p>But you don't need to be ambitious about it. Many players spend years at the same level, playing for pleasure, never studying, never pushing to improve. The game rewards both approaches equally. It will give you exactly as much as you put in — and it always gives something back.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <h2 class="section-title">Why now?</h2>
+    <div class="section-body">
+      <p>Go is having a quiet renaissance. The AlphaGo matches introduced millions of people to the game. Online platforms have made finding opponents effortless. And there is a growing recognition that in a world of constant stimulation and shallow engagement, the depth and slowness of Go is not a weakness — it is the point.</p>
+      <p>If you have ever looked at a Go board and felt curious, that curiosity is worth following.</p>
+    </div>
+  </div>
+
+  <div class="cta">
+    <p class="cta-text"><strong>Ready to start?</strong><br>Path A teaches the rules step by step, with every concept shown on a real board. You'll be ready to play your first real game in about 40 minutes.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <a href="index.html" class="cta-btn">← Back to home</a>
+      <a href="index.html" class="cta-btn primary">Start learning →</a>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Go Teacher · <a href="index.html">Home</a> · <a href="glossary.html">Glossary</a> · <a href="https://online-go.com" target="_blank">Play on OGS</a>
+  </footer>
+
+</div>
+</body>
+</html>
